@@ -590,6 +590,132 @@
             <div style="font-size:10px;color:#475569;margin-top:3px;line-height:1.5;">
               💡 SL sous/sur le corps de la bougie OB (pas la mèche) · attend la clôture de la bougie de confirmation avant d'entrer · vérifie la cohérence DXY
             </div>
+
+            <!-- PATTERNS DE BOUGIES DE CONFIRMATION -->
+            <div onclick="event.stopPropagation()" style="margin-top:10px;">
+              <div style="font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">📊 Bougies de confirmation valides</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+
+                <!-- MARTEAU (haussier) -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute courte -->
+                    <line x1="14" y1="2" x2="14" y2="10" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps -->
+                    <rect x="6" y="10" width="16" height="22" rx="2" fill="#10b981"/>
+                    <!-- mèche basse longue -->
+                    <line x1="14" y1="32" x2="14" y2="54" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#10b981;font-weight:700;text-align:center;line-height:1.2;">Marteau</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Achat</span>
+                </div>
+
+                <!-- MARTEAU INVERSÉ (haussier) -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute longue -->
+                    <line x1="14" y1="2" x2="14" y2="26" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps -->
+                    <rect x="6" y="26" width="16" height="22" rx="2" fill="#10b981"/>
+                    <!-- mèche basse courte -->
+                    <line x1="14" y1="48" x2="14" y2="54" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#10b981;font-weight:700;text-align:center;line-height:1.2;">Marteau inv.</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Achat</span>
+                </div>
+
+                <!-- ÉTOILE FILANTE (baissier) -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute longue -->
+                    <line x1="14" y1="2" x2="14" y2="26" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps baissier -->
+                    <rect x="6" y="26" width="16" height="22" rx="2" fill="#f43f5e"/>
+                    <!-- mèche basse courte -->
+                    <line x1="14" y1="48" x2="14" y2="54" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#f43f5e;font-weight:700;text-align:center;line-height:1.2;">Étoile fil.</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Vente</span>
+                </div>
+
+                <!-- PENDU (baissier) -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute courte -->
+                    <line x1="14" y1="2" x2="14" y2="10" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps baissier -->
+                    <rect x="6" y="10" width="16" height="22" rx="2" fill="#f43f5e"/>
+                    <!-- mèche basse longue -->
+                    <line x1="14" y1="32" x2="14" y2="54" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#f43f5e;font-weight:700;text-align:center;line-height:1.2;">Pendu</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Vente</span>
+                </div>
+
+                <!-- ENGULFING HAUSSIER -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+                  <svg width="36" height="56" viewBox="0 0 36 56">
+                    <!-- petite bougie baissière -->
+                    <line x1="11" y1="6" x2="11" y2="10" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="5" y="10" width="12" height="16" rx="2" fill="#334155"/>
+                    <line x1="11" y1="26" x2="11" y2="30" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                    <!-- grande bougie haussière englobante -->
+                    <line x1="25" y1="4" x2="25" y2="8" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="17" y="8" width="16" height="40" rx="2" fill="#10b981"/>
+                    <line x1="25" y1="48" x2="25" y2="52" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#10b981;font-weight:700;text-align:center;line-height:1.2;">Engulfing</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Achat</span>
+                </div>
+
+                <!-- ENGULFING BAISSIER -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2);">
+                  <svg width="36" height="56" viewBox="0 0 36 56">
+                    <!-- petite bougie haussière -->
+                    <line x1="11" y1="6" x2="11" y2="10" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="5" y="10" width="12" height="16" rx="2" fill="#10b981" opacity="0.5"/>
+                    <line x1="11" y1="26" x2="11" y2="30" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                    <!-- grande bougie baissière englobante -->
+                    <line x1="25" y1="4" x2="25" y2="8" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="17" y="8" width="16" height="40" rx="2" fill="#f43f5e"/>
+                    <line x1="25" y1="48" x2="25" y2="52" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#f43f5e;font-weight:700;text-align:center;line-height:1.2;">Engulfing</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Vente</span>
+                </div>
+
+                <!-- DOJI / REJECTION HAUSSIER -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute très courte -->
+                    <line x1="14" y1="2" x2="14" y2="8" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps très fin (doji/rejection) -->
+                    <rect x="6" y="8" width="16" height="6" rx="2" fill="#10b981"/>
+                    <!-- mèche basse très longue -->
+                    <line x1="14" y1="14" x2="14" y2="54" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#10b981;font-weight:700;text-align:center;line-height:1.2;">Rejection</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Achat</span>
+                </div>
+
+                <!-- DOJI / REJECTION BAISSIER -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2);">
+                  <svg width="28" height="56" viewBox="0 0 28 56">
+                    <!-- mèche haute très longue -->
+                    <line x1="14" y1="2" x2="14" y2="42" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                    <!-- corps très fin (doji/rejection) -->
+                    <rect x="6" y="42" width="16" height="6" rx="2" fill="#f43f5e"/>
+                    <!-- mèche basse très courte -->
+                    <line x1="14" y1="48" x2="14" y2="54" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:9px;color:#f43f5e;font-weight:700;text-align:center;line-height:1.2;">Rejection</span>
+                  <span style="font-size:8px;color:#475569;text-align:center;line-height:1.2;">Vente</span>
+                </div>
+
+              </div>
+              <div style="font-size:9px;color:#334155;margin-top:8px;line-height:1.5;">⚠️ Attends toujours la <strong style="color:#e2e8f0;">clôture complète</strong> de la bougie de confirmation avant d'entrer — jamais en cours de formation.</div>
+            </div>
+
             <div id="sl-reminder-wrap" style="margin-top:8px;padding:8px 10px;border-radius:7px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);" onclick="event.stopPropagation()">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#f59e0b;font-weight:600;">
                 <input type="checkbox" id="sl-reminder-check" onchange="onSlReminderToggle()" style="width:16px;height:16px;cursor:pointer;accent-color:#f59e0b;" />
@@ -720,11 +846,17 @@
     <button id="btn-start" disabled>▶ Démarrer</button>
     <button id="btn-reset" onclick="resetAll()">↺ Reset</button>
     <div id="timer-inline"><div id="timer-display">00:00</div></div>
+    <div class="timer-sub"></div>
     <div id="progress-wrap"><div class="progress-track"><div id="progress-fill"></div></div></div>
     <div id="progress-pct"></div>
+    <div id="timer-badge"></div>
     <div id="expired-label">Expiré</div>
     <div id="expired-msg"></div>
     <div id="expired-badge">⛔ Scénario invalidé</div>
+    <!-- row-* IDs requis par lockItem/updateCheckUI -->
+    <div id="row-second"></div>
+    <div id="row-fvg"></div>
+    <div id="row-ifvg"></div>
     <!-- Backtest date (nécessaire pour calcul de fenêtre) -->
     <input type="date" id="bt-date" />
     <div id="bt-date-wrap"></div>
@@ -971,6 +1103,15 @@
         <div id="winrate-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore assez de trades pour afficher une tendance.</div>
       </div>
 
+      <!-- TAILLE DES ORDER BLOCKS -->
+      <div class="chart-box">
+        <div class="chart-title">📏 Analyse des tailles d'Order Block</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Performance par tranche de taille d'OB (pips Gold)</div>
+        <div id="ob-size-stats"></div>
+        <div id="ob-size-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore assez de trades avec une taille d'OB renseignée.</div>
+        <div id="ob-size-summary" style="display:none;margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;"></div>
+      </div>
+
       <!-- STREAK TRACKER -->
       <div class="chart-box">
         <div class="chart-title">🔥 Série en cours</div>
@@ -1056,7 +1197,9 @@
 // ═══════════════════════════════════
 //  GOOGLE SHEET SYNC
 // ═══════════════════════════════════
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxaGd1hkMonRb1GsJVjRkZwLgp8tuiWsuRQd67gpm0SpQn_Phqs0cBXNVGocbX2cju7/exec';
+// ⬇️ REMPLACE CETTE URL par l'URL de ton déploiement Apps Script dédié Gold
+// (crée un nouveau Sheet + nouveau déploiement Apps Script — voir apps-script-code.gs)
+const SHEET_URL = 'COLLE_TON_URL_GOLD_ICI';
 let syncStatus = 'idle'; // idle | syncing | ok | error
 
 function updateSyncBadge(status) {
@@ -1066,10 +1209,12 @@ function updateSyncBadge(status) {
   if (status === 'syncing') { el.textContent = '🔄 Synchro…'; el.style.color = '#06b6d4'; el.style.display=''; }
   else if (status === 'ok') { el.textContent = '✓ Synchronisé'; el.style.color = '#10b981'; el.style.display=''; setTimeout(()=>{ if(syncStatus==='ok') el.style.display='none'; }, 2500); }
   else if (status === 'error') { el.textContent = '⚠️ Hors ligne (local uniquement)'; el.style.color = '#f59e0b'; el.style.display=''; }
+  else if (status === 'nourl') { el.textContent = '🔗 Sheet non configuré — local uniquement'; el.style.color = '#64748b'; el.style.display=''; }
   else { el.style.display = 'none'; }
 }
 
 async function fetchTradesFromSheet() {
+  if (!SHEET_URL || SHEET_URL === 'COLLE_TON_URL_GOLD_ICI') { updateSyncBadge('nourl'); return; }
   updateSyncBadge('syncing');
   try {
     const res = await fetch(SHEET_URL + '?action=getAll');
@@ -1084,7 +1229,7 @@ async function fetchTradesFromSheet() {
         aplus: t.aplus === true || t.aplus === 'TRUE' || t.aplus === 'true',
         golden: t.golden === true || t.golden === 'TRUE' || t.golden === 'true',
       }));
-      localStorage.setItem('trading-trades', JSON.stringify(trades));
+      localStorage.setItem('gold-trades', JSON.stringify(trades));
       updateSyncBadge('ok');
       refreshJournal(); refreshStats(); updateTabBadge(); updateDailyCounter();
       if (document.getElementById('page-stats').classList.contains('active')) renderCalendar();
@@ -1115,6 +1260,7 @@ function normalizeTime(val) {
 }
 
 async function pushTradeToSheet(trade) {
+  if (!SHEET_URL || SHEET_URL === 'COLLE_TON_URL_GOLD_ICI') return;
   updateSyncBadge('syncing');
   try {
     await fetch(SHEET_URL + '?action=add', {
@@ -1128,6 +1274,7 @@ async function pushTradeToSheet(trade) {
 }
 
 async function deleteTradeFromSheet(id) {
+  if (!SHEET_URL || SHEET_URL === 'COLLE_TON_URL_GOLD_ICI') return;
   updateSyncBadge('syncing');
   try {
     await fetch(SHEET_URL + '?action=delete', {
@@ -1156,7 +1303,7 @@ let currentMode = 'backtest';
 let statsFilter = 'all';
 let journalFilter = 'all';
 let pendingDeleteId = null;
-let trades = JSON.parse(localStorage.getItem('trading-trades') || '[]');
+let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]');
 
 // ═══════════════════════════════════
 //  INIT
@@ -1472,7 +1619,7 @@ function showBacktestDeadline(sweepStr) {
   document.getElementById('timer-display').textContent = '→ ' + deadline;
   document.getElementById('timer-display').style.color = '#06b6d4';
   document.getElementById('timer-display').style.fontSize = '18px';
-  document.querySelector('.timer-sub').textContent = 'limite ' + mins + ' min (jusqu\'à ' + deadline + ')';
+  const _ts = document.querySelector('.timer-sub'); if(_ts) _ts.textContent = 'limite ' + mins + ' min (jusqu\'à ' + deadline + ')';
   document.getElementById('timer-inline').classList.add('visible');
 
   timerState = 'running';
@@ -1526,7 +1673,7 @@ function startTimer() {
   document.getElementById('progress-wrap').style.display = '';
   document.getElementById('timer-inline').classList.add('visible');
   document.getElementById('timer-display').style.fontSize = '24px';
-  document.querySelector('.timer-sub').textContent = 'avant invalidation';
+  const _ts = document.querySelector('.timer-sub'); if(_ts) _ts.textContent = 'avant invalidation';
   updateCheckUI('first');
   timerInterval = setInterval(timerTick, 1000);
   timerTick();
@@ -1706,7 +1853,7 @@ function resetAll(force) {
   document.getElementById('timer-display').textContent = sweeper === 'eurusd' ? '15:00' : '25:00';
   document.getElementById('timer-display').style.color = '#10b981';
   document.getElementById('timer-display').style.fontSize = '24px';
-  document.querySelector('.timer-sub').textContent = 'avant invalidation';
+  const _ts = document.querySelector('.timer-sub'); if(_ts) _ts.textContent = 'avant invalidation';
   // Header badges
   document.getElementById('timer-badge').style.display = 'none';
   document.getElementById('expired-badge').style.display = 'none';
@@ -1807,7 +1954,7 @@ function showBtWindowExpired(deadlineMin) {
   td.textContent = '⛔ ' + deadline;
   td.style.color = '#f43f5e';
   td.style.fontSize = '16px';
-  document.querySelector('.timer-sub').textContent = 'fenêtre dépassée !';
+  const _ts = document.querySelector('.timer-sub'); if(_ts) _ts.textContent = 'fenêtre dépassée !';
   // Show expired message temporarily
   const msg = document.getElementById('expired-msg');
   msg.textContent = '⛔ Backtest — La prise de liquidité (condition 2) dépasse la fenêtre de ' + Math.floor(timerDuration/60) + ' min. Reset pour recommencer.';
@@ -2170,7 +2317,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════
 //  NO TRADE TODAY (journées sans trade)
 // ═══════════════════════════════════
-let noTradeDays = JSON.parse(localStorage.getItem('no-trade-days') || '[]');
+let noTradeDays = JSON.parse(localStorage.getItem('gold-no-trade-days') || '[]');
 let selectedNoTradeReason = null;
 
 function toggleStrategyTips() {
@@ -2200,7 +2347,7 @@ function saveNoTradeDay() {
   const note = document.getElementById('notrade-note').value;
   noTradeDays = noTradeDays.filter(d => d.date !== today); // un seul tag par jour
   noTradeDays.push({ date: today, reason: selectedNoTradeReason, note, mode: currentMode });
-  localStorage.setItem('no-trade-days', JSON.stringify(noTradeDays));
+  localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
   closeNoTradeModal();
 }
 
@@ -2416,7 +2563,7 @@ function submitTrade() {
     sweeper: sweeper,
   };
   trades.unshift(trade);
-  localStorage.setItem('trading-trades', JSON.stringify(trades));
+  localStorage.setItem('gold-trades', JSON.stringify(trades));
   pushTradeToSheet(trade); // synchro Google Sheet
   const btn = document.getElementById('btn-submit');
   btn.textContent = '✓ Trade enregistré !'; btn.classList.add('saved');
@@ -2595,6 +2742,102 @@ function getFilteredTrades() {
   return data;
 }
 
+// ═══════════════════════════════════
+//  ANALYSE TAILLE OB
+// ═══════════════════════════════════
+function renderObSizeStats(data) {
+  const container = document.getElementById('ob-size-stats');
+  const empty = document.getElementById('ob-size-empty');
+  const summary = document.getElementById('ob-size-summary');
+
+  const withOb = data.filter(t => t.fvgSize && !isNaN(parseFloat(t.fvgSize)));
+  if (withOb.length < 2) {
+    container.innerHTML = '';
+    summary.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Définit les tranches automatiquement selon la distribution réelle
+  const sizes = withOb.map(t => parseFloat(t.fvgSize));
+  const minSize = Math.floor(Math.min(...sizes) / 5) * 5;
+  const maxSize = Math.ceil(Math.max(...sizes) / 5) * 5;
+  const step = maxSize - minSize <= 30 ? 5 : maxSize - minSize <= 100 ? 10 : 20;
+
+  const buckets = {};
+  for (let s = minSize; s < maxSize; s += step) {
+    buckets[s] = { label: `${s}–${s+step}`, wins: 0, losses: 0, bes: 0, total: 0, sizes: [] };
+  }
+
+  withOb.forEach(t => {
+    const v = parseFloat(t.fvgSize);
+    const bucketKey = Math.floor(v / step) * step;
+    const b = buckets[bucketKey];
+    if (!b) return;
+    b.total++;
+    b.sizes.push(v);
+    if (t.result === 'WIN') b.wins++;
+    else if (t.result === 'LOSS') b.losses++;
+    else b.bes++;
+  });
+
+  const activeBuckets = Object.values(buckets).filter(b => b.total > 0);
+
+  // Tableau détaillé par tranche
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  html += `<tr style="border-bottom:1px solid #1e293b;">
+    <th style="text-align:left;padding:6px 8px;color:#64748b;font-size:11px;text-transform:uppercase;">Taille (pips)</th>
+    <th style="text-align:center;padding:6px 8px;color:#64748b;font-size:11px;">Trades</th>
+    <th style="text-align:center;padding:6px 8px;color:#10b981;font-size:11px;">W</th>
+    <th style="text-align:center;padding:6px 8px;color:#f43f5e;font-size:11px;">L</th>
+    <th style="text-align:center;padding:6px 8px;color:#f59e0b;font-size:11px;">BE</th>
+    <th style="text-align:right;padding:6px 8px;color:#64748b;font-size:11px;">Win%</th>
+    <th style="text-align:right;padding:6px 8px;color:#475569;font-size:11px;">Moy.</th>
+  </tr>`;
+
+  activeBuckets.forEach(b => {
+    const wr = b.total > 0 ? (b.wins / b.total * 100) : 0;
+    const avgSize = (b.sizes.reduce((a,v)=>a+v,0)/b.sizes.length).toFixed(1);
+    const wrColor = wr >= 60 ? '#10b981' : wr >= 40 ? '#f59e0b' : '#f43f5e';
+    html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+      <td style="padding:8px;color:#e2e8f0;font-weight:600;">${b.label} pips</td>
+      <td style="padding:8px;text-align:center;color:#94a3b8;">${b.total}</td>
+      <td style="padding:8px;text-align:center;color:#10b981;font-weight:700;">${b.wins}</td>
+      <td style="padding:8px;text-align:center;color:#f43f5e;font-weight:700;">${b.losses}</td>
+      <td style="padding:8px;text-align:center;color:#f59e0b;">${b.bes}</td>
+      <td style="padding:8px;text-align:right;">
+        <span style="font-weight:800;color:${wrColor};">${wr.toFixed(0)}%</span>
+        <div style="margin-top:3px;height:4px;border-radius:2px;background:#1e293b;width:60px;margin-left:auto;">
+          <div style="height:4px;border-radius:2px;background:${wrColor};width:${wr}%;"></div>
+        </div>
+      </td>
+      <td style="padding:8px;text-align:right;color:#64748b;">${avgSize}p</td>
+    </tr>`;
+  });
+  html += '</table>';
+  container.innerHTML = html;
+
+  // Résumé : meilleure tranche
+  if (activeBuckets.length > 1) {
+    const best = [...activeBuckets].sort((a,b) => {
+      const wrA = a.total > 0 ? a.wins/a.total : 0;
+      const wrB = b.total > 0 ? b.wins/b.total : 0;
+      return wrB - wrA;
+    })[0];
+    const bestWr = (best.wins / best.total * 100).toFixed(0);
+    summary.style.display = 'flex';
+    summary.innerHTML = `
+      <div style="padding:10px 14px;border-radius:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);font-size:12px;color:#10b981;font-weight:600;">
+        ✓ Meilleure tranche : <strong>${best.label} pips</strong> (${bestWr}% sur ${best.total} trade${best.total>1?'s':''})
+      </div>
+      <div style="padding:10px 14px;border-radius:8px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);font-size:12px;color:#06b6d4;">
+        📊 OB moyen global : <strong>${(sizes.reduce((a,v)=>a+v,0)/sizes.length).toFixed(1)} pips</strong> sur ${withOb.length} trade${withOb.length>1?'s':''}
+      </div>`;
+  }
+}
+
+
 function refreshStats() {
   let data = getFilteredTrades();
   const total = data.length;
@@ -2645,12 +2888,13 @@ function refreshStats() {
   document.getElementById('bf-losses').style.width = (losses/total*100)+'%';
   document.getElementById('bf-be').style.width = (be/total*100)+'%';
 
-  renderPerformanceEur(data);
-  renderEquityCurve(data);
-  renderWinrateEvolution(data);
-  renderStreakTracker(data);
-  renderHeatmap(data);
-  renderBtVsReal();
+  try { renderPerformanceEur(data); } catch(e) { console.error('renderPerformanceEur:', e); }
+  try { renderEquityCurve(data); } catch(e) { console.error('renderEquityCurve:', e); }
+  try { renderWinrateEvolution(data); } catch(e) { console.error('renderWinrateEvolution:', e); }
+  try { renderStreakTracker(data); } catch(e) { console.error('renderStreakTracker:', e); }
+  try { renderObSizeStats(data); } catch(e) { console.error('renderObSizeStats:', e); }
+  try { renderHeatmap(data); } catch(e) { console.error('renderHeatmap:', e); }
+  try { renderBtVsReal(); } catch(e) { console.error('renderBtVsReal:', e); }
 }
 
 // ═══════════════════════════════════
@@ -2791,6 +3035,7 @@ function renderWinrateEvolution(data) {
     </div>`;
   }).join('');
 }
+
 
 // ═══════════════════════════════════
 //  STREAK TRACKER
@@ -3183,7 +3428,7 @@ function saveEditTrade() {
   }
 
   trades[idx] = updated;
-  localStorage.setItem('trading-trades', JSON.stringify(trades));
+  localStorage.setItem('gold-trades', JSON.stringify(trades));
   pushTradeUpdateToSheet(updated); // synchro Google Sheet
 
   closeEditModal();
@@ -3194,6 +3439,7 @@ function saveEditTrade() {
 }
 
 async function pushTradeUpdateToSheet(trade) {
+  if (!SHEET_URL || SHEET_URL === 'COLLE_TON_URL_GOLD_ICI') return;
   updateSyncBadge('syncing');
   try {
     await fetch(SHEET_URL + '?action=update', {
@@ -3281,7 +3527,7 @@ function closeConfirm() {
 function confirmDelete() {
   if (!pendingDeleteId) return;
   trades = trades.filter(t => String(t.id) !== String(pendingDeleteId));
-  localStorage.setItem('trading-trades', JSON.stringify(trades));
+  localStorage.setItem('gold-trades', JSON.stringify(trades));
   deleteTradeFromSheet(pendingDeleteId); // synchro Google Sheet
   pendingDeleteId = null;
   document.getElementById('confirm-overlay').classList.remove('visible');
