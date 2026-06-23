@@ -1,0 +1,2 @@
+# Scalping-XAUUSD
+Scalping XAUUSD
