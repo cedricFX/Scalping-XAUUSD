@@ -538,16 +538,16 @@
 
             <!-- SL en pips Gold -->
             <div style="margin-bottom:12px;">
-              <div class="field-label">Stop Loss (pips Gold) <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(1 pip = 0.01 · sous/sur le corps de l'OB)</span></div>
+              <div class="field-label">Stop Loss en pips <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(1 pip = 0.10$ · ex: SL de 4.02$ = 40 pips)</span></div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="lot-sl-btns">
-                <button class="sl-pip-btn" onclick="setLotSl(5)">5</button>
                 <button class="sl-pip-btn" onclick="setLotSl(10)">10</button>
-                <button class="sl-pip-btn" onclick="setLotSl(15)">15</button>
                 <button class="sl-pip-btn" onclick="setLotSl(20)">20</button>
                 <button class="sl-pip-btn" onclick="setLotSl(30)">30</button>
+                <button class="sl-pip-btn" onclick="setLotSl(40)">40</button>
                 <button class="sl-pip-btn" onclick="setLotSl(50)">50</button>
+                <button class="sl-pip-btn" onclick="setLotSl(80)">80</button>
               </div>
-              <input type="number" id="lot-sl-input" class="input" style="width:90px;height:30px;padding:4px 8px;font-size:12px;" min="1" max="200" step="1" placeholder="pips" oninput="onLotSlInput()" />
+              <input type="number" id="lot-sl-input" class="input" style="width:90px;height:30px;padding:4px 8px;font-size:12px;" min="1" max="500" step="1" placeholder="pips" oninput="onLotSlInput()" />
             </div>
 
             <!-- Risque % -->
@@ -753,7 +753,7 @@
         <div class="field"><div class="field-label">Stop Loss (prix)</div><input type="number" step="0.00001" id="edit-sl" class="input" /></div>
         <div class="field"><div class="field-label">Take Profit</div><input type="number" step="0.00001" id="edit-tp" class="input" /></div>
         <div class="field"><div class="field-label">RR</div><input type="number" step="0.01" id="edit-rr" class="input" placeholder="2.00" /></div>
-        <div class="field"><div class="field-label">SL (pips)</div><input type="number" step="0.5" min="2" max="8" id="edit-slpips" class="input" /></div>
+        <div class="field"><div class="field-label">SL (pips)</div><input type="number" step="1" min="1" max="5000" id="edit-slpips" class="input" /></div>
         <div class="field"><div class="field-label">FVG (pips)</div><input type="number" step="0.1" min="1.3" max="6" id="edit-fvgsize" class="input" /></div>
         <div class="field"><div class="field-label">Heure de fin</div><input type="time" id="edit-timeend" class="input" /></div>
         <div class="field"><div class="field-label">Risque (€)</div><input type="number" step="1" id="edit-riskeur" class="input" /></div>
@@ -893,32 +893,41 @@
       </div>
 
       <!-- Prix / SL / TP -->
-      <div class="field"><div class="field-label">Prix d'entrée</div><input type="number" step="0.00001" id="f-entry" class="input" placeholder="1.08450" oninput="autoCalcSlTp()" /></div>
-      <div class="field"><div class="field-label">Stop Loss (prix)</div><input type="number" step="0.00001" id="f-sl" class="input" placeholder="1.08320" oninput="calcRR()" /></div>
-      <div class="field"><div class="field-label">Take Profit</div><input type="number" step="0.00001" id="f-tp" class="input" placeholder="1.08710" oninput="calcRR()" /></div>
+      <div class="field"><div class="field-label">Prix d'entrée</div><input type="number" step="0.01" id="f-entry" class="input" placeholder="4036.13" oninput="autoCalcSlTp()" /></div>
+      <div class="field"><div class="field-label">Stop Loss (prix)</div><input type="number" step="0.01" id="f-sl" class="input" placeholder="Auto ou manuel" oninput="calcRR()" /></div>
+      <div class="field"><div class="field-label">Take Profit (prix)</div><input type="number" step="0.01" id="f-tp" class="input" placeholder="Auto ou manuel" oninput="calcRR()" /></div>
       <div class="field"><div class="field-label">Risk/Reward (auto)</div><div class="rr-display" id="rr-display">Calculé automatiquement</div></div>
 
-      <!-- SL en pips (obligatoire 2–8) -->
+      <!-- SL en pips Gold (1 pip = 0.10$) -->
       <div class="field full-width" style="margin-top:6px;">
-        <div class="field-label">Taille du SL en pips <span style="color:#f43f5e;">*</span> <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(obligatoire · 2 à 8 pips)</span></div>
+        <div class="field-label">SL en pips <span style="color:#f43f5e;">*</span> <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(1 pip = 0.10$ · ex: SL de 4.02$ = 40 pips)</span></div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;" id="sl-pips-btns">
-            <button class="sl-pip-btn" onclick="setSlPips(2)">2</button>
-            <button class="sl-pip-btn" onclick="setSlPips(2.5)">2.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(3)">3</button>
-            <button class="sl-pip-btn" onclick="setSlPips(3.5)">3.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(4)">4</button>
-            <button class="sl-pip-btn" onclick="setSlPips(4.5)">4.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(5)">5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(5.5)">5.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(6)">6</button>
-            <button class="sl-pip-btn" onclick="setSlPips(6.5)">6.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(7)">7</button>
-            <button class="sl-pip-btn" onclick="setSlPips(7.5)">7.5</button>
-            <button class="sl-pip-btn" onclick="setSlPips(8)">8</button>
+            <button class="sl-pip-btn" onclick="setSlPips(10)">10p</button>
+            <button class="sl-pip-btn" onclick="setSlPips(20)">20p</button>
+            <button class="sl-pip-btn" onclick="setSlPips(30)">30p</button>
+            <button class="sl-pip-btn" onclick="setSlPips(40)">40p</button>
+            <button class="sl-pip-btn" onclick="setSlPips(50)">50p</button>
+            <button class="sl-pip-btn" onclick="setSlPips(80)">80p</button>
           </div>
-          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="2" max="8" step="0.5" placeholder="pips" oninput="onSlPipsInput()" />
+          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="1" max="500" step="1" placeholder="pips" oninput="onSlPipsInput()" />
           <div id="sl-pips-display" style="font-size:12px;color:#475569;"></div>
+        </div>
+      </div>
+
+      <!-- RR cible pour calcul auto du TP -->
+      <div class="field full-width" style="margin-top:6px;">
+        <div class="field-label">RR cible <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(pour calcul auto du TP)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="sl-pip-btn" onclick="setTargetRR(1)">1R</button>
+            <button class="sl-pip-btn" onclick="setTargetRR(1.5)">1.5R</button>
+            <button class="sl-pip-btn" onclick="setTargetRR(2)">2R</button>
+            <button class="sl-pip-btn" onclick="setTargetRR(2.5)">2.5R</button>
+            <button class="sl-pip-btn" onclick="setTargetRR(3)">3R</button>
+          </div>
+          <input type="number" id="f-target-rr" class="input" style="width:70px;height:30px;padding:4px 8px;font-size:12px;" min="0.1" max="10" step="0.1" placeholder="RR" oninput="onTargetRRInput()" />
+          <div id="tp-auto-display" style="font-size:12px;color:#10b981;font-weight:600;"></div>
         </div>
       </div>
 
@@ -997,7 +1006,7 @@
         <div style="font-size:28px;font-weight:800;color:#fbbf24;" id="s-golden">0</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
-        <div class="stat-card"><div class="stat-label">SL moyen</div><div class="stat-value" id="s-sl-pips" style="color:#f43f5e;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">pips</div></div>
+        <div class="stat-card"><div class="stat-label">SL moyen</div><div class="stat-value" id="s-sl-pips" style="color:#f43f5e;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">$</div></div>
         <div class="stat-card"><div class="stat-label">OB moyen</div><div class="stat-value" id="s-fvg-size" style="color:#a78bfa;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">pips</div></div>
         <div class="stat-card"><div class="stat-label">Durée moyenne</div><div class="stat-value" id="s-duration" style="color:#06b6d4;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">par trade</div></div>
       </div>
@@ -2001,8 +2010,13 @@ function updateCheckUI(key) {
 //  LOT SIZE CALCULATOR
 // ═══════════════════════════════════
 let currentRisk = 1; // % par défaut
-let lotSl = null; // taille du SL utilisée pour le calcul de lot (2 à 8 pips)
-const PIP_VALUE_EUR = 0.92; // XAU/USD Gold : valeur d'1 pip (0.01) pour 1 lot standard ≈ 1$/pip ≈ 0.92€ (à ajuster selon taux EUR/USD du moment)
+let lotSl = null; // taille du SL en $ (ex: 4.02 pour un SL de $4.02 de mouvement)
+// XAU/USD Gold : 1 pip = 0.01$ de mouvement
+// Valeur de 1 pip pour 1 lot standard ≈ 0.8821€ (vérifié : SL 402 pips = 4.02$, 0.282 lots pour 100€ de risque)
+// XAU/USD Gold : 1 pip = 0.10$ · valeur du pip pour 1 lot standard
+// Ex : SL = 40 pips (4.02$ / 0.10$), risque 100€ → 100 / (40 × 8.8211) = 0.283 lots ✓
+const PIP_VALUE_EUR = 8.8211; // €/pip/lot standard
+const PIP_SIZE = 0.10;        // 1 pip Gold = 0.10$ de mouvement de prix
 
 function setRisk(r) {
   currentRisk = r;
@@ -2438,7 +2452,7 @@ function setSlPips(v) {
 }
 function onSlPipsInput() {
   const v = parseFloat(document.getElementById('f-sl-pips').value);
-  slPips = (!isNaN(v) && v >= 2 && v <= 8) ? v : null;
+  slPips = (!isNaN(v) && v > 0 && v <= 5000) ? v : null;
   document.querySelectorAll('.sl-pip-btn').forEach(b => {
     b.classList.toggle('active', parseFloat(b.textContent) === v);
   });
@@ -2454,25 +2468,51 @@ function updateSlPipsDisplay(v) {
   }
 }
 
-// Auto-calcule le prix du SL et le TP à 2RR à partir du prix d'entrée + SL en pips + direction
+// Calcul auto SL/TP depuis entrée + pips + RR cible
+// Sur Gold : 1 pip = 0.01$, donc slDistance$ = slPips * 0.01
+let targetRR = null;
+
 function autoCalcSlTp() {
   const entry = parseFloat(document.getElementById('f-entry').value);
   if (isNaN(entry) || slPips === null) { calcRR(); return; }
-  const pipValue = 0.0001; // EURUSD : 1 pip = 0.0001
-  const slDistance = slPips * pipValue;
-  const tpDistance = slDistance * 2; // 2RR fixe
 
-  let slPrice, tpPrice;
+  const slDistance = slPips * PIP_SIZE; // 1 pip Gold = 0.10$ de mouvement de prix
+
+  let slPrice;
   if (direction === 'LONG') {
     slPrice = entry - slDistance;
-    tpPrice = entry + tpDistance;
   } else {
     slPrice = entry + slDistance;
-    tpPrice = entry - tpDistance;
   }
-  document.getElementById('f-sl').value = slPrice.toFixed(5);
-  document.getElementById('f-tp').value = tpPrice.toFixed(5);
+  document.getElementById('f-sl').value = slPrice.toFixed(2);
+
+  // Si un RR cible est défini, calcule le TP automatiquement
+  if (targetRR !== null) {
+    const tpDistance = slDistance * targetRR;
+    const tpPrice = direction === 'LONG' ? entry + tpDistance : entry - tpDistance;
+    document.getElementById('f-tp').value = tpPrice.toFixed(2);
+    const tpDisplay = document.getElementById('tp-auto-display');
+    if (tpDisplay) tpDisplay.textContent = '→ TP : ' + tpPrice.toFixed(2);
+  }
   calcRR();
+}
+
+function setTargetRR(rr) {
+  targetRR = rr;
+  document.getElementById('f-target-rr').value = rr;
+  document.querySelectorAll('#f-target-rr ~ button, .sl-pip-btn').forEach(b => {});
+  // Highlight active RR button
+  document.querySelectorAll('[onclick^="setTargetRR"]').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.getAttribute('onclick').match(/[\d.]+/)[0]) === rr);
+  });
+  autoCalcSlTp();
+}
+
+function onTargetRRInput() {
+  const v = parseFloat(document.getElementById('f-target-rr').value);
+  targetRR = (!isNaN(v) && v > 0) ? v : null;
+  document.querySelectorAll('[onclick^="setTargetRR"]').forEach(b => b.classList.remove('active'));
+  autoCalcSlTp();
 }
 
 function calcRR() {
@@ -3552,7 +3592,7 @@ function refreshJournal() {
     const h = Math.floor(d/60), m = d%60;
     return ' · ⏱ '+(h > 0 ? `${h}h${String(m).padStart(2,'0')}` : `${m}min`);
   };
-  const slPipsStr = t => t.slPips ? ` · SL: ${t.slPips}pips` : '';
+  const slPipsStr = t => t.slPips ? ` · SL: ${t.slPips}p` : '';
   const fvgSizeStr = t => t.fvgSize ? ` · FVG: ${t.fvgSize}pips` : '';
   list.innerHTML = data.map(t => `
     <div class="trade-card" style="border:1px solid ${rc(t)}22;background:${rc(t)}08;">
