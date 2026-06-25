@@ -90,6 +90,7 @@
     .content { max-width:900px; margin:0 auto; padding:32px 24px; }
     .page { display:none; }
     .page.active { display:block; }
+    #page-position, #page-stats, #page-journal { padding: 0 16px 24px; }
     .page-title { font-size:22px; font-weight:700; color:#f1f5f9; margin-bottom:4px; }
     .page-sub { font-size:13px; color:#64748b; margin-bottom:28px; }
 
@@ -538,16 +539,16 @@
 
             <!-- SL en pips Gold -->
             <div style="margin-bottom:12px;">
-              <div class="field-label">Stop Loss en pips <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(1 pip = 0.10$ · ex: SL de 4.02$ = 40 pips)</span></div>
+              <div class="field-label">Stop Loss <span style="color:#fbbf24;font-weight:700;">en $</span> <span style="color:#475569;font-weight:400;text-transform:none;letter-spacing:0;">(valeur affichée par TradingView · ex: "Stop: 7.38$" → saisir 7.38)</span></div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="lot-sl-btns">
-                <button class="sl-pip-btn" onclick="setLotSl(10)">10</button>
-                <button class="sl-pip-btn" onclick="setLotSl(20)">20</button>
-                <button class="sl-pip-btn" onclick="setLotSl(30)">30</button>
-                <button class="sl-pip-btn" onclick="setLotSl(40)">40</button>
-                <button class="sl-pip-btn" onclick="setLotSl(50)">50</button>
-                <button class="sl-pip-btn" onclick="setLotSl(80)">80</button>
+                <button class="sl-pip-btn" onclick="setLotSl(2)">2$</button>
+                <button class="sl-pip-btn" onclick="setLotSl(4)">4$</button>
+                <button class="sl-pip-btn" onclick="setLotSl(5)">5$</button>
+                <button class="sl-pip-btn" onclick="setLotSl(7)">7$</button>
+                <button class="sl-pip-btn" onclick="setLotSl(10)">10$</button>
+                <button class="sl-pip-btn" onclick="setLotSl(15)">15$</button>
               </div>
-              <input type="number" id="lot-sl-input" class="input" style="width:90px;height:30px;padding:4px 8px;font-size:12px;" min="1" max="500" step="1" placeholder="pips" oninput="onLotSlInput()" />
+              <input type="number" id="lot-sl-input" class="input" style="width:90px;height:30px;padding:4px 8px;font-size:12px;" min="0.1" max="200" step="0.1" placeholder="$" oninput="onLotSlInput()" />
             </div>
 
             <!-- Risque % -->
@@ -571,7 +572,7 @@
                   <div style="font-size:11px;color:#475569;">lots XAU/USD</div>
                 </div>
                 <div style="text-align:right;">
-                  <div style="font-size:11px;color:#64748b;">SL utilisé : <span id="lot-sl-used">—</span> pips</div>
+                  <div style="font-size:11px;color:#64748b;">SL utilisé : <span id="lot-sl-used">—</span> $</div>
                   <div style="font-size:11px;color:#64748b;">Risque : <span id="lot-risk-eur">—</span> €</div>
                 </div>
               </div>
@@ -753,7 +754,7 @@
         <div class="field"><div class="field-label">Stop Loss (prix)</div><input type="number" step="0.00001" id="edit-sl" class="input" /></div>
         <div class="field"><div class="field-label">Take Profit</div><input type="number" step="0.00001" id="edit-tp" class="input" /></div>
         <div class="field"><div class="field-label">RR</div><input type="number" step="0.01" id="edit-rr" class="input" placeholder="2.00" /></div>
-        <div class="field"><div class="field-label">SL (pips)</div><input type="number" step="1" min="1" max="5000" id="edit-slpips" class="input" /></div>
+        <div class="field"><div class="field-label">SL ($)</div><input type="number" step="0.1" min="0.1" max="200" id="edit-slpips" class="input" /></div>
         <div class="field"><div class="field-label">FVG (pips)</div><input type="number" step="0.1" min="1.3" max="6" id="edit-fvgsize" class="input" /></div>
         <div class="field"><div class="field-label">Heure de fin</div><input type="time" id="edit-timeend" class="input" /></div>
         <div class="field"><div class="field-label">Risque (€)</div><input type="number" step="1" id="edit-riskeur" class="input" /></div>
@@ -2013,10 +2014,11 @@ let currentRisk = 1; // % par défaut
 let lotSl = null; // taille du SL en $ (ex: 4.02 pour un SL de $4.02 de mouvement)
 // XAU/USD Gold : 1 pip = 0.01$ de mouvement
 // Valeur de 1 pip pour 1 lot standard ≈ 0.8821€ (vérifié : SL 402 pips = 4.02$, 0.282 lots pour 100€ de risque)
-// XAU/USD Gold : 1 pip = 0.10$ · valeur du pip pour 1 lot standard
-// Ex : SL = 40 pips (4.02$ / 0.10$), risque 100€ → 100 / (40 × 8.8211) = 0.283 lots ✓
-const PIP_VALUE_EUR = 8.8211; // €/pip/lot standard
-const PIP_SIZE = 0.10;        // 1 pip Gold = 0.10$ de mouvement de prix
+// XAU/USD Gold — saisir le SL en dollars (exactement ce que TradingView affiche)
+// Ex: TradingView "Stop: 7.38$" → saisir 7.38 → Lots = 100€ / (7.38 × 88.21) = 0.154 lots
+// Ex: TradingView "Stop: 4.02$" → saisir 4.02 → Lots = 100€ / (4.02 × 88.21) = 0.282 lots ✓
+const GOLD_LOT_FACTOR = 88.21; // valeur du contrat CFD Gold : €/dollar de SL/lot (broker-dépendant)
+// Si ton broker donne des résultats différents, ajuste cette valeur dans les paramètres
 
 function setRisk(r) {
   currentRisk = r;
@@ -2069,7 +2071,7 @@ function setLotSl(v) {
 
 function onLotSlInput() {
   const v = parseFloat(document.getElementById('lot-sl-input').value);
-  lotSl = (!isNaN(v) && v >= 2 && v <= 8) ? v : null;
+  lotSl = (!isNaN(v) && v > 0) ? v : null;
   document.querySelectorAll('#lot-sl-btns .sl-pip-btn').forEach(b => {
     b.classList.toggle('active', parseFloat(b.textContent) === v);
   });
@@ -2086,7 +2088,7 @@ function calcLotSize() {
   }
   const capital = parseFloat(document.getElementById('lot-capital').value) || 10000;
   const riskEur = capital * (currentRisk / 100);
-  const lots = riskEur / (lotSl * PIP_VALUE_EUR);
+  const lots = riskEur / (lotSl * GOLD_LOT_FACTOR);
 
   slUsed.textContent = lotSl;
   riskEurEl.textContent = riskEur.toFixed(0);
@@ -2476,7 +2478,7 @@ function autoCalcSlTp() {
   const entry = parseFloat(document.getElementById('f-entry').value);
   if (isNaN(entry) || slPips === null) { calcRR(); return; }
 
-  const slDistance = slPips * PIP_SIZE; // 1 pip Gold = 0.10$ de mouvement de prix
+  const slDistance = slPips; // slPips est saisi en dollars directement (comme TradingView)
 
   let slPrice;
   if (direction === 'LONG') {
@@ -3592,7 +3594,7 @@ function refreshJournal() {
     const h = Math.floor(d/60), m = d%60;
     return ' · ⏱ '+(h > 0 ? `${h}h${String(m).padStart(2,'0')}` : `${m}min`);
   };
-  const slPipsStr = t => t.slPips ? ` · SL: ${t.slPips}p` : '';
+  const slPipsStr = t => t.slPips ? ` · SL: ${t.slPips}$` : '';
   const fvgSizeStr = t => t.fvgSize ? ` · FVG: ${t.fvgSize}pips` : '';
   list.innerHTML = data.map(t => `
     <div class="trade-card" style="border:1px solid ${rc(t)}22;background:${rc(t)}08;">
