@@ -442,6 +442,13 @@
       </div>
     </div>
 
+    <!-- DATE BACKTEST (visible uniquement en mode backtest) -->
+    <div id="bt-date-wrap-checklist" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);">
+      <span style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap;">📅 Date du backtest</span>
+      <input type="date" id="bt-date-checklist" class="input" style="width:160px;height:36px;padding:4px 10px;font-size:13px;"
+        oninput="document.getElementById('bt-date').value=this.value; document.getElementById('f-date').value=this.value;" />
+    </div>
+
     <div class="checklist">
 
       <!-- 01 NIVEAU DE LIQUIDITÉ M5 -->
@@ -1285,8 +1292,11 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = now.toISOString().slice(0,10);
   document.getElementById('f-time').value = now.toTimeString().slice(0,5);
   // Init backtest date (starts in backtest mode)
-  document.getElementById('bt-date').value = now.toISOString().slice(0,10);
+  const todayStr = now.toISOString().slice(0,10);
+  document.getElementById('bt-date').value = todayStr;
+  document.getElementById('bt-date-checklist').value = todayStr;
   document.getElementById('bt-date-wrap').style.display = '';
+  document.getElementById('bt-date-wrap-checklist').style.display = 'flex';
   document.getElementById('bt-note').style.display = '';
   ;
   startClock();
@@ -1327,6 +1337,7 @@ function setMode(mode) {
   // Backtest-only UI: date picker + note + relaxed timing
   document.getElementById('bt-note').style.display = mode === 'backtest' ? '' : 'none';
   document.getElementById('bt-date-wrap').style.display = mode === 'backtest' ? '' : 'none';
+  document.getElementById('bt-date-wrap-checklist').style.display = mode === 'backtest' ? 'flex' : 'none';
   if (mode === 'backtest' && !document.getElementById('bt-date').value) {
     document.getElementById('bt-date').value = new Date().toISOString().slice(0, 10);
   }
