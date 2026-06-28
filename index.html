@@ -346,23 +346,23 @@
       </div>
       <div id="expired-badge">⛔ Scénario invalidé</div>
 
-    </div><!-- end header-top -->
-
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-      <div class="tabs" style="overflow-x:auto;flex:1;">
-        <button class="tab-btn active" onclick="showTab('checklist')">Checklist</button>
-        <button class="tab-btn" id="tab-position" onclick="showTab('position')" disabled style="opacity:0.35;cursor:not-allowed;">Prise de position</button>
-        <button class="tab-btn" onclick="showTab('stats')">Statistiques <span class="tab-badge" id="stats-badge" style="display:none;background:#1e293b;color:#94a3b8;"></span></button>
-        <button class="tab-btn" onclick="showTab('journal')">Journal <span class="tab-badge" id="journal-badge" style="display:none;background:#1e293b;color:#94a3b8;"></span></button>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <!-- Switch BT/RÉEL dans le header-top pour ne pas masquer les onglets -->
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;">
         <div id="daily-counter" style="display:none;font-size:11px;color:#475569;"><span id="daily-count"></span></div>
         <div class="mode-toggle" id="mode-toggle">
           <button class="mode-btn active-bt" id="btn-bt" onclick="setMode('backtest')">🔬 BT</button>
           <button class="mode-btn" id="btn-real" onclick="setMode('real')">🔴 RÉEL</button>
         </div>
       </div>
-    </div><!-- end nav row -->
+
+    </div><!-- end header-top -->
+
+    <div class="tabs" style="overflow-x:auto;">
+      <button class="tab-btn active" onclick="showTab('checklist')">Checklist</button>
+      <button class="tab-btn" id="tab-position" onclick="showTab('position')" disabled style="opacity:0.35;cursor:not-allowed;">Prise de position</button>
+      <button class="tab-btn" onclick="showTab('stats')">Statistiques <span class="tab-badge" id="stats-badge" style="display:none;background:#1e293b;color:#94a3b8;"></span></button>
+      <button class="tab-btn" onclick="showTab('journal')">Journal <span class="tab-badge" id="journal-badge" style="display:none;background:#1e293b;color:#94a3b8;"></span></button>
+    </div><!-- end tabs -->
 
   </div><!-- end header-inner -->
 </div><!-- end #header -->
@@ -592,7 +592,7 @@
               <div class="aplus-text" id="aplus-text">OB en zone premium/discount (Fibonacci 0.5)</div>
               <div class="aplus-badge">Setup A++</div>
             </div>
-            <div style="font-size:10px;color:#475569;margin-top:8px;padding-left:2px;">📐 Bonus qualité : OB sous le niveau 0.5 Fibo pour un achat (zone discount), au-dessus pour une vente (zone premium) · DXY en miroir</div>
+            <div style="font-size:10px;color:#475569;margin-top:8px;padding-left:2px;">📐 Bonus qualité : OB sous le niveau 0.5 Fibo pour un achat (zone discount), au-dessus pour une vente (zone premium)</div>
           </div>
         </div>
       </div>
@@ -1241,13 +1241,10 @@
         <div class="stat-card"><div class="stat-label">SHORT</div><div class="stat-value" id="s-short" style="color:#f43f5e;">0</div></div>
       </div>
       <div class="aplus-stat">
-        <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Setup A++</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">OB en zone premium/discount + DXY aligné</div></div>
+        <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Setup A++</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">OB en zone premium/discount (Fibo 0.5)</div></div>
         <div style="font-size:28px;font-weight:800;color:#8b5cf6;" id="s-aplus">0</div>
       </div>
-      <div class="aplus-stat" style="margin-top:10px;border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.04);">
-        <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Golden Setup</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">DXY en miroir + zone premium/discount</div></div>
-        <div style="font-size:28px;font-weight:800;color:#fbbf24;" id="s-golden">0</div>
-      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
         <div class="stat-card"><div class="stat-label">SL moyen</div><div class="stat-value" id="s-sl-pips" style="color:#f43f5e;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">$</div></div>
         <div class="stat-card"><div class="stat-label">OB moyen</div><div class="stat-value" id="s-fvg-size" style="color:#a78bfa;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">pips</div></div>
@@ -1412,7 +1409,6 @@
       <button class="filter-btn" id="jf-backtest" onclick="setJournalFilter('backtest')">🔬 Backtest</button>
       <button class="filter-btn" id="jf-real" onclick="setJournalFilter('real')">🔴 Réel</button>
       <button class="filter-btn" id="jf-aplus" onclick="setJournalFilter('aplus')">⭐ A++</button>
-      <button class="filter-btn" id="jf-golden" onclick="setJournalFilter('golden')">⚡ Golden</button>
     <div class="trade-list" id="trade-list"></div>
     <div class="empty" id="journal-empty"><div class="empty-icon">📓</div>Ton journal est vide — commence à trader !</div>
   </div>
@@ -1532,7 +1528,12 @@ let currentMode = 'backtest';
 let statsFilter = 'all';
 let journalFilter = 'all';
 let pendingDeleteId = null;
-let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]');
+let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]').map(t => ({
+  ...t,
+  checklist: typeof t.checklist === 'string'
+    ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
+    : (t.checklist || {}),
+}));
 
 // ═══════════════════════════════════
 //  INIT
@@ -3437,7 +3438,7 @@ function refreshStats() {
   document.getElementById('s-long').textContent = longs;
   document.getElementById('s-short').textContent = shorts;
   document.getElementById('s-aplus').textContent = aplus;
-  document.getElementById('s-golden').textContent = golden;
+  // Golden Setup retiré de l'interface Gold OB
   document.getElementById('s-sl-pips').textContent = avgSlPips;
   document.getElementById('s-fvg-size').textContent = avgFvgSize;
   if (avgDuration !== null) {
@@ -3834,7 +3835,7 @@ function exportReport(fromDate, toDate, periodLabel) {
   </div>
   <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
     <div class="card"><div class="label">Setups A++</div><div class="value" style="color:#7c3aed;font-size:18px;">${aplusCount}</div></div>
-    <div class="card"><div class="label">Golden Setups</div><div class="value" style="color:#d97706;font-size:18px;">${goldenCount}</div></div>
+
   </div>
   <table>
     <thead><tr><th>Date</th><th>Heure</th><th>Mode</th><th>Sens</th><th>Résultat</th><th>RR</th><th>SL</th><th>Tags</th></tr></thead>
@@ -4034,7 +4035,6 @@ function refreshJournal() {
   if (journalFilter === 'backtest') data = trades.filter(t => t.mode==='backtest');
   if (journalFilter === 'real') data = trades.filter(t => t.mode==='real');
   if (journalFilter === 'aplus') data = trades.filter(t => t.aplus);
-  if (journalFilter === 'golden') data = trades.filter(t => t.golden);
   const list = document.getElementById('trade-list');
   const empty = document.getElementById('journal-empty');
   const total = trades.length;
@@ -4073,7 +4073,6 @@ function refreshJournal() {
           ${modeTag(t)} XAU/USD · <span style="color:${dc(t)}">${t.direction}</span>
           ${t.rr?`<span style="color:#06b6d4;margin-left:6px;">${t.rr}R</span>`:''}
           ${apluspTag(t)}
-          ${goldenTag(t)}
           ${candleTag(t)}
           ${tradeTypeTag(t)}
           ${impulseTag(t)}
@@ -4083,7 +4082,6 @@ function refreshJournal() {
         ${t.notes?`<div class="trade-notes">${t.notes}</div>`:''}
         <div style="margin-top:4px;">${screenshotTag(t)}</div>
       </div>
-      <div style="font-size:10px;color:#334155;text-align:right;">${Object.values(t.checklist||{}).filter(Boolean).length}/4 ✓</div>
       <button class="edit-btn" onclick="openEditTrade(${t.id})">✏️ Modifier</button>
       <button class="delete-btn" onclick="askDelete(${t.id})">🗑️ Suppr.</button>
     </div>`).join('');
