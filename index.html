@@ -933,6 +933,35 @@
 
   </div>
 
+  <!-- BILAN HEBDOMADAIRE -->
+  <div class="overlay" id="weekly-bilan-overlay">
+    <div class="dialog" style="max-width:400px;text-align:left;">
+      <div style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">📊 Bilan de la semaine</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:18px;" id="wb-period"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Trades</div>
+          <div style="font-size:28px;font-weight:800;color:#e2e8f0;" id="wb-trades">0</div>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Winrate</div>
+          <div style="font-size:28px;font-weight:800;" id="wb-wr">—</div>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">W/L/BE</div>
+          <div style="font-size:16px;font-weight:700;color:#e2e8f0;" id="wb-wl">—</div>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Performance</div>
+          <div style="font-size:24px;font-weight:800;" id="wb-perf">—</div>
+        </div>
+      </div>
+      <div class="dialog-btns">
+        <button class="btn-danger" style="background:rgba(6,182,212,0.15);border-color:rgba(6,182,212,0.4);color:#06b6d4;" onclick="dismissWeeklyBilan()">Compris — bonne semaine ! 💪</button>
+      </div>
+    </div>
+  </div>
+
   <!-- EXPORT PDF DATE RANGE MODAL -->
   <div class="overlay" id="export-overlay">
     <div class="dialog" style="max-width:380px;text-align:left;">
@@ -1226,6 +1255,32 @@
     </div>
     <div class="page-sub" id="stats-sub">Aucun trade enregistré pour l'instant</div>
     <div id="stats-content" style="display:none;">
+
+      <!-- ═══ ESPÉRANCE MATHÉMATIQUE ═══ -->
+      <div id="esperance-block" style="margin-bottom:20px;padding:20px 24px;border-radius:14px;background:linear-gradient(135deg,rgba(6,182,212,0.08) 0%,rgba(99,102,241,0.06) 100%);border:1.5px solid rgba(6,182,212,0.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">📐 Espérance Mathématique</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div style="font-size:48px;font-weight:900;line-height:1;" id="s-esperance">—</div>
+              <div style="font-size:14px;color:#64748b;font-weight:600;" id="s-esperance-unit">R/trade</div>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:6px;" id="s-esperance-desc">En attente de données</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:#475569;margin-bottom:8px;">Formule : (Winrate × RR moyen) − (1 − Winrate)</div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+              <div style="font-size:11px;color:#64748b;">Winrate : <span id="s-esp-wr" style="color:#e2e8f0;font-weight:700;">—</span></div>
+              <div style="font-size:11px;color:#64748b;">RR moyen : <span id="s-esp-rr" style="color:#e2e8f0;font-weight:700;">—</span></div>
+              <div style="font-size:11px;color:#64748b;">Proj. 100 trades : <span id="s-esp-proj" style="font-weight:700;">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="s-esperance-bar" style="margin-top:14px;height:6px;border-radius:3px;background:#1e293b;overflow:hidden;">
+          <div id="s-esperance-fill" style="height:100%;border-radius:3px;transition:width 0.5s ease;"></div>
+        </div>
+        <div style="font-size:10px;color:#334155;margin-top:6px;" id="s-esperance-hint"></div>
+      </div>
       <div class="stat-grid-3">
         <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" id="s-winrate" style="color:#06b6d4;">—</div></div>
         <div class="stat-card"><div class="stat-label">RR Moyen</div><div class="stat-value" id="s-rr" style="color:#3b82f6;">—</div></div>
@@ -1325,6 +1380,32 @@
         <div style="font-size:11px;color:#475569;margin-bottom:14px;">OB frais vs mitigé · Impulsion forte vs faible</div>
         <div id="quality-stats"></div>
         <div id="quality-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Renseigne la qualité de l'OB et de l'impulsion pour voir ces stats.</div>
+      </div>
+
+      <!-- TAILLE DES ORDER BLOCKS -->
+      <div class="chart-box">
+
+      <!-- PERFORMANCE PAR JOUR DE LA SEMAINE -->
+      <div class="chart-box">
+        <div class="chart-title">📅 Performance par jour de la semaine</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Lundi → Vendredi · session Londres</div>
+        <div id="weekday-stats"></div>
+        <div id="weekday-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades.</div>
+      </div>
+
+      <!-- DRAWDOWN MAXIMUM -->
+      <div class="chart-box">
+        <div class="chart-title">📉 Drawdown & Séries</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Perte consécutive maximale</div>
+        <div id="drawdown-stats"></div>
+      </div>
+
+      <!-- SCORE QUALITÉ SETUP -->
+      <div class="chart-box">
+        <div class="chart-title">⭐ Score qualité des setups</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Corrélation qualité du setup / résultat</div>
+        <div id="setup-score-stats"></div>
+        <div id="setup-score-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne les données de qualité pour voir ces stats.</div>
       </div>
 
       <!-- TAILLE DES ORDER BLOCKS -->
@@ -1556,6 +1637,8 @@ window.addEventListener('DOMContentLoaded', () => {
   refreshJournal();
   updateTabBadge();
   fetchTradesFromSheet(); // sync depuis Google Sheet au chargement
+  checkDailyLossLimit();
+  if (new Date().getDay() === 1) showWeeklyBilan(); // Lundi = affiche le bilan de la semaine passée
 });
 
 // ═══════════════════════════════════
@@ -3099,6 +3182,307 @@ function getFilteredTrades() {
 }
 
 // ═══════════════════════════════════
+//  ESPÉRANCE MATHÉMATIQUE
+// ═══════════════════════════════════
+function renderEsperance(data) {
+  const el = document.getElementById('s-esperance');
+  const unit = document.getElementById('s-esperance-unit');
+  const desc = document.getElementById('s-esperance-desc');
+  const fill = document.getElementById('s-esperance-fill');
+  const hint = document.getElementById('s-esperance-hint');
+  const proj = document.getElementById('s-esp-proj');
+  const ewrEl = document.getElementById('s-esp-wr');
+  const errEl = document.getElementById('s-esp-rr');
+
+  const closed = data.filter(t => t.result && t.rr && !isNaN(parseFloat(t.rr)));
+  if (closed.length < 3) {
+    el.textContent = '—'; el.style.color = '#475569';
+    desc.textContent = 'Minimum 3 trades clôturés requis';
+    fill.style.width = '0%'; hint.textContent = '';
+    return;
+  }
+
+  const wins = closed.filter(t => t.result === 'WIN');
+  const wr = wins.length / closed.length;
+  const rrMoy = wins.reduce((s, t) => s + parseFloat(t.rr), 0) / (wins.length || 1);
+  const esp = (wr * rrMoy) - (1 - wr);
+
+  ewrEl.textContent = (wr * 100).toFixed(0) + '%';
+  errEl.textContent = rrMoy.toFixed(2) + 'R';
+
+  const color = esp > 0.5 ? '#10b981' : esp > 0 ? '#06b6d4' : esp > -0.3 ? '#f59e0b' : '#f43f5e';
+  el.textContent = (esp >= 0 ? '+' : '') + esp.toFixed(2);
+  el.style.color = color;
+  unit.style.color = color;
+
+  // Projection sur 100 trades
+  const proj100 = esp * 100;
+  proj.textContent = (proj100 >= 0 ? '+' : '') + proj100.toFixed(0) + 'R';
+  proj.style.color = color;
+
+  // Description
+  if (esp > 1) desc.textContent = '🔥 Excellente stratégie — chaque trade rapporte en moyenne ' + esp.toFixed(2) + 'R';
+  else if (esp > 0.3) desc.textContent = '✅ Stratégie rentable — continue à appliquer ton plan';
+  else if (esp > 0) desc.textContent = '⚠️ Marginalement rentable — affine tes critères d\'entrée ou TP';
+  else desc.textContent = '🔴 Espérance négative — ta stratégie perd sur le long terme à ces conditions';
+
+  // Barre de progression (-1 à +2 → 0% à 100%)
+  const pct = Math.max(0, Math.min(100, ((esp + 1) / 3) * 100));
+  fill.style.width = pct + '%';
+  fill.style.background = color;
+
+  hint.textContent = `Sur ${closed.length} trades · ${wins.length} wins · RR moyen réalisé ${rrMoy.toFixed(2)}R`;
+  hint.style.color = '#475569';
+}
+
+// ═══════════════════════════════════
+//  PERFORMANCE PAR JOUR DE LA SEMAINE
+// ═══════════════════════════════════
+function renderWeekdayStats(data) {
+  const container = document.getElementById('weekday-stats');
+  const empty = document.getElementById('weekday-empty');
+  const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+  const groups = days.map(d => ({ label: d, wins: 0, losses: 0, bes: 0, total: 0 }));
+
+  data.forEach(t => {
+    if (!t.date) return;
+    const d = new Date(t.date + 'T12:00:00');
+    const dow = d.getDay(); // 0=dim, 1=lun...
+    if (dow === 0 || dow === 6) return;
+    const g = groups[dow - 1];
+    g.total++;
+    if (t.result === 'WIN') g.wins++;
+    else if (t.result === 'LOSS') g.losses++;
+    else g.bes++;
+  });
+
+  const active = groups.filter(g => g.total > 0);
+  if (active.length === 0) { container.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  let html = '';
+  groups.forEach(g => {
+    if (g.total === 0) return;
+    const wr = g.wins / g.total * 100;
+    const color = wr >= 60 ? '#10b981' : wr >= 40 ? '#f59e0b' : '#f43f5e';
+    html += `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;color:#e2e8f0;">${g.label}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:10px;color:#475569;">W${g.wins}/L${g.losses}${g.bes?'/BE'+g.bes:''} · ${g.total}T</span>
+          <span style="font-size:14px;font-weight:800;color:${color};">${wr.toFixed(0)}%</span>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${wr}%;background:${color};"></div></div>
+    </div>`;
+  });
+
+  // Meilleur / pire jour
+  const sorted = [...active].sort((a, b) => (b.wins/b.total) - (a.wins/a.total));
+  if (sorted.length > 1) {
+    const best = sorted[0], worst = sorted[sorted.length-1];
+    html += `<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+      <div style="flex:1;padding:8px 10px;border-radius:7px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);font-size:11px;color:#10b981;">✓ Meilleur : <strong>${best.label}</strong> ${(best.wins/best.total*100).toFixed(0)}%</div>
+      <div style="flex:1;padding:8px 10px;border-radius:7px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);font-size:11px;color:#f43f5e;">⚠️ Éviter : <strong>${worst.label}</strong> ${(worst.wins/worst.total*100).toFixed(0)}%</div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════
+//  DRAWDOWN MAXIMUM
+// ═══════════════════════════════════
+function renderDrawdown(data) {
+  const container = document.getElementById('drawdown-stats');
+  if (data.length < 2) { container.innerHTML = '<div style="color:#334155;font-size:12px;text-align:center;padding:20px 0;">Pas encore assez de trades.</div>'; return; }
+
+  // Calcul du drawdown en R
+  let peak = 0, equity = 0, maxDD = 0, maxDDStart = 0, maxDDEnd = 0;
+  let currentDD = 0, ddStart = 0;
+  const sorted = [...data].sort((a, b) => (a.date||'') > (b.date||'') ? 1 : -1);
+
+  sorted.forEach((t, i) => {
+    const rr = parseFloat(t.rr) || 0;
+    const gain = t.result === 'WIN' ? rr : t.result === 'LOSS' ? -1 : 0;
+    equity += gain;
+    if (equity > peak) { peak = equity; currentDD = 0; ddStart = i; }
+    else {
+      currentDD = equity - peak;
+      if (currentDD < maxDD) { maxDD = currentDD; maxDDStart = ddStart; maxDDEnd = i; }
+    }
+  });
+
+  // Série perdante max
+  let maxLoss = 0, cur = 0;
+  sorted.forEach(t => {
+    if (t.result === 'LOSS') { cur++; maxLoss = Math.max(maxLoss, cur); }
+    else cur = 0;
+  });
+
+  // Série gagnante max
+  let maxWin = 0, curW = 0;
+  sorted.forEach(t => {
+    if (t.result === 'WIN') { curW++; maxWin = Math.max(maxWin, curW); }
+    else curW = 0;
+  });
+
+  const ddColor = maxDD > -3 ? '#f59e0b' : maxDD > -6 ? '#f97316' : '#f43f5e';
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="padding:14px;border-radius:10px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);text-align:center;">
+        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Drawdown max</div>
+        <div style="font-size:28px;font-weight:800;color:${ddColor};">${maxDD.toFixed(2)}R</div>
+        <div style="font-size:10px;color:#475569;margin-top:4px;">perte consécutive max</div>
+      </div>
+      <div style="padding:14px;border-radius:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);text-align:center;">
+        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Série perdante</div>
+        <div style="font-size:28px;font-weight:800;color:#f59e0b;">${maxLoss}</div>
+        <div style="font-size:10px;color:#475569;margin-top:4px;">losses consécutifs max</div>
+      </div>
+    </div>
+    <div style="padding:10px 14px;border-radius:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:11px;color:#475569;">🏆 Meilleure série gagnante</div>
+      <div style="font-size:16px;font-weight:800;color:#10b981;">${maxWin} wins consécutifs</div>
+    </div>
+    <div style="font-size:10px;color:#334155;margin-top:8px;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+      💡 Règle suggérée : arrêter la journée après 2 losses consécutifs (-2R) pour protéger le capital.
+    </div>`;
+}
+
+// ═══════════════════════════════════
+//  SCORE QUALITÉ SETUP
+// ═══════════════════════════════════
+function calcSetupScore(t) {
+  let score = 0;
+  if (t.obStatus === 'fresh') score++;
+  if (t.impulseQuality === 'strong') score++;
+  if (t.aplus) score++;
+  if (t.tradeType) score++;  // renseigné = conscient du type
+  if (t.candlePattern && ['Morning Star','3 Soldats haussiers','Evening Star','3 Corbeaux baissiers',
+    'Engulfing haussier','Engulfing baissier','Tweezers Bottom','Tweezers Top'].includes(t.candlePattern)) score++;
+  return score;
+}
+
+function renderSetupScore(data) {
+  const container = document.getElementById('setup-score-stats');
+  const empty = document.getElementById('setup-score-empty');
+
+  const withScore = data.filter(t => t.obStatus || t.impulseQuality || t.aplus || t.tradeType);
+  if (withScore.length < 2) { container.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  // Groupe par score 0-5
+  const groups = [0,1,2,3,4,5].map(s => ({ score: s, wins: 0, losses: 0, bes: 0, total: 0 }));
+  withScore.forEach(t => {
+    const s = Math.min(5, calcSetupScore(t));
+    const g = groups[s];
+    g.total++;
+    if (t.result === 'WIN') g.wins++;
+    else if (t.result === 'LOSS') g.losses++;
+    else g.bes++;
+  });
+
+  const active = groups.filter(g => g.total > 0);
+  let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+  active.forEach(g => {
+    const wr = g.total > 0 ? g.wins / g.total * 100 : 0;
+    const color = wr >= 65 ? '#10b981' : wr >= 45 ? '#f59e0b' : '#f43f5e';
+    const stars = '⭐'.repeat(g.score) + '☆'.repeat(5 - g.score);
+    html += `<div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;min-width:90px;color:#94a3b8;">${stars}</span>
+      <div style="flex:1;"><div class="bar-track"><div class="bar-fill" style="width:${wr}%;background:${color};"></div></div></div>
+      <span style="font-size:13px;font-weight:800;color:${color};min-width:38px;text-align:right;">${wr.toFixed(0)}%</span>
+      <span style="font-size:10px;color:#475569;min-width:30px;">${g.total}T</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Seuil recommandé
+  const best = active.filter(g => g.total >= 2).sort((a,b) => (b.wins/b.total) - (a.wins/a.total))[0];
+  if (best && best.score >= 3) {
+    html += `<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);font-size:11px;color:#10b981;">
+      ✓ Score ≥${best.score}⭐ : ${(best.wins/best.total*100).toFixed(0)}% winrate — concentre-toi sur ces setups
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════
+//  BILAN HEBDOMADAIRE
+// ═══════════════════════════════════
+function showWeeklyBilan() {
+  const now = new Date();
+  const day = now.getDay();
+  const lastMonday = new Date(now);
+  lastMonday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) - 7);
+  lastMonday.setHours(0,0,0,0);
+  const lastSunday = new Date(lastMonday);
+  lastSunday.setDate(lastMonday.getDate() + 6);
+  lastSunday.setHours(23,59,59,999);
+
+  const weekTrades = trades.filter(t => {
+    const d = new Date(t.date + 'T12:00:00');
+    return d >= lastMonday && d <= lastSunday;
+  });
+
+  if (weekTrades.length === 0) return;
+
+  const dismissed = localStorage.getItem('weekly-bilan-dismissed');
+  if (dismissed === lastMonday.toISOString().slice(0,10)) return;
+
+  const wins = weekTrades.filter(t => t.result === 'WIN').length;
+  const losses = weekTrades.filter(t => t.result === 'LOSS').length;
+  const bes = weekTrades.filter(t => t.result === 'BE').length;
+  const wr = weekTrades.length > 0 ? (wins / weekTrades.length * 100).toFixed(0) : 0;
+  const perfR = weekTrades.reduce((s, t) => {
+    const rr = parseFloat(t.rr) || 0;
+    return s + (t.result === 'WIN' ? rr : t.result === 'LOSS' ? -1 : 0);
+  }, 0);
+
+  const overlay = document.getElementById('weekly-bilan-overlay');
+  if (!overlay) return;
+
+  document.getElementById('wb-period').textContent =
+    `Semaine du ${lastMonday.toLocaleDateString('fr-FR')} au ${lastSunday.toLocaleDateString('fr-FR')}`;
+  document.getElementById('wb-trades').textContent = weekTrades.length;
+  document.getElementById('wb-wr').textContent = wr + '%';
+  document.getElementById('wb-wr').style.color = wr >= 50 ? '#10b981' : '#f43f5e';
+  document.getElementById('wb-wl').textContent = `${wins}W / ${losses}L / ${bes}BE`;
+  document.getElementById('wb-perf').textContent = (perfR >= 0 ? '+' : '') + perfR.toFixed(2) + 'R';
+  document.getElementById('wb-perf').style.color = perfR >= 0 ? '#10b981' : '#f43f5e';
+
+  overlay.classList.add('visible');
+}
+
+function dismissWeeklyBilan() {
+  const now = new Date();
+  const day = now.getDay();
+  const lastMonday = new Date(now);
+  lastMonday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) - 7);
+  localStorage.setItem('weekly-bilan-dismissed', lastMonday.toISOString().slice(0,10));
+  document.getElementById('weekly-bilan-overlay').classList.remove('visible');
+}
+
+// ═══════════════════════════════════
+//  LIMITE JOURNALIÈRE
+// ═══════════════════════════════════
+function checkDailyLossLimit() {
+  const today = new Date().toISOString().slice(0,10);
+  const todayTrades = trades.filter(t => t.date === today && t.mode === 'real');
+  const todayLosses = todayTrades.filter(t => t.result === 'LOSS').length;
+  const banner = document.getElementById('daily-limit-banner');
+  if (!banner) return;
+  if (todayLosses >= 2) {
+    banner.style.display = '';
+    document.getElementById('daily-limit-msg').textContent =
+      `${todayLosses} losses aujourd'hui — règle de protection : arrête le trading pour aujourd'hui.`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════
 //  PERFORMANCE PAR TYPE DE BOUGIE
 // ═══════════════════════════════════
 function renderCandlePatternStats(data) {
@@ -3459,8 +3843,12 @@ function refreshStats() {
   try { renderEquityCurve(data); } catch(e) { console.error('renderEquityCurve:', e); }
   try { renderWinrateEvolution(data); } catch(e) { console.error('renderWinrateEvolution:', e); }
   try { renderStreakTracker(data); } catch(e) { console.error('renderStreakTracker:', e); }
+  try { renderEsperance(data); } catch(e) { console.error('renderEsperance:', e); }
   try { renderCandlePatternStats(data); } catch(e) { console.error('renderCandlePatternStats:', e); }
   try { renderHourlyStats(data); } catch(e) { console.error('renderHourlyStats:', e); }
+  try { renderWeekdayStats(data); } catch(e) { console.error('renderWeekdayStats:', e); }
+  try { renderDrawdown(data); } catch(e) { console.error('renderDrawdown:', e); }
+  try { renderSetupScore(data); } catch(e) { console.error('renderSetupScore:', e); }
   try { renderQualityStats(data); } catch(e) { console.error('renderQualityStats:', e); }
   try { renderObSizeStats(data); } catch(e) { console.error('renderObSizeStats:', e); }
   try { renderHeatmap(data); } catch(e) { console.error('renderHeatmap:', e); }
@@ -4053,6 +4441,13 @@ function refreshJournal() {
   const tradeTypeTag = t => t.tradeType ? `<span style="font-size:10px;font-weight:700;margin-left:6px;padding:2px 7px;border-radius:10px;${t.tradeType==='reversal'?'color:#06b6d4;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);':'color:#a78bfa;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);'}">${t.tradeType==='reversal'?'🔄 Retournement':'➡️ Continuation'}</span>` : '';
   const impulseTag = t => t.impulseQuality ? `<span style="font-size:10px;font-weight:700;margin-left:6px;padding:2px 7px;border-radius:10px;${t.impulseQuality==='strong'?'color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);':'color:#f59e0b;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);'}">${t.impulseQuality==='strong'?'💪 Impulsion forte':'⚠️ Impulsion faible'}</span>` : '';
   const obStatusTag = t => t.obStatus ? `<span style="font-size:10px;font-weight:700;margin-left:6px;padding:2px 7px;border-radius:10px;${t.obStatus==='fresh'?'color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);':'color:#64748b;background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.2);'}">${t.obStatus==='fresh'?'✨ OB frais':'♻️ OB mitigé'}</span>` : '';
+  const scoreTag = t => {
+    const s = calcSetupScore(t);
+    if (s === 0) return '';
+    const stars = '⭐'.repeat(s);
+    const color = s >= 4 ? '#10b981' : s >= 3 ? '#06b6d4' : '#f59e0b';
+    return `<span style="font-size:10px;font-weight:700;margin-left:6px;padding:2px 7px;border-radius:10px;color:${color};background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">${stars} ${s}/5</span>`;
+  };
   const screenshotTag = t => [
     t.screenshot ? `<a href="${t.screenshot}" target="_blank" style="font-size:11px;color:#06b6d4;font-weight:600;margin-left:6px;text-decoration:none;">📸1 ↗</a>` : '',
     t.screenshot2 ? `<a href="${t.screenshot2}" target="_blank" style="font-size:11px;color:#06b6d4;font-weight:600;margin-left:6px;text-decoration:none;">📸2 ↗</a>` : '',
@@ -4078,6 +4473,7 @@ function refreshJournal() {
           ${tradeTypeTag(t)}
           ${impulseTag(t)}
           ${obStatusTag(t)}
+          ${scoreTag(t)}
         </div>
         <div class="trade-meta">${t.date} ${t.time}${t.timeEnd?' → '+t.timeEnd:''}${durationStr(t)}${t.entry?' · Entrée : '+t.entry:''}${t.sl?' · SL : '+t.sl:''}${slPipsStr(t)}${fvgSizeStr(t)}${t.tp?' · TP : '+t.tp:''}</div>
         ${t.notes?`<div class="trade-notes">${t.notes}</div>`:''}
