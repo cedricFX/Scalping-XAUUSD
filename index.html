@@ -4481,6 +4481,15 @@ function getMonthBounds(offset=0) {
 }
 
 function refreshJournal() {
+  try {
+    refreshJournalInner();
+  } catch (e) {
+    console.error('refreshJournal error:', e);
+    const list = document.getElementById('trade-list');
+    if (list) list.innerHTML = `<div style="padding:20px;color:#f43f5e;font-size:12px;">⚠️ Erreur d'affichage du journal : ${e.message}<br><span style="color:#475569;">Ouvre la console (F12) pour les détails.</span></div>`;
+  }
+}
+function refreshJournalInner() {
   let data = [...trades];
   if (journalFilter === 'backtest') data = data.filter(t => t.mode==='backtest');
   else if (journalFilter === 'real') data = data.filter(t => t.mode==='real');
