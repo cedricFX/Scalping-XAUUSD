@@ -201,7 +201,8 @@
     .aplus-stat { margin-top:14px; padding:16px 20px; border-radius:10px; border:1px solid rgba(168,85,247,0.25); background:rgba(168,85,247,0.05); display:flex; align-items:center; justify-content:space-between; }
 
     /* JOURNAL */
-    .trade-list { display:flex; flex-direction:column; gap:12px; }
+    .trade-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
+    @media (max-width:760px) { .trade-list { grid-template-columns:1fr; } }
     .trade-card { padding:16px 20px; border-radius:10px; display:grid; grid-template-columns:auto 1fr auto auto auto; gap:12px; align-items:center; }
     .edit-btn { background:transparent; border:1px solid #1e293b; color:#475569; cursor:pointer; font-size:14px; padding:5px 10px; border-radius:6px; transition:all 0.15s; font-weight:600; }
     .edit-btn:hover { border-color:#06b6d4; color:#06b6d4; background:rgba(6,182,212,0.08); }
@@ -1516,6 +1517,17 @@
           <option>Harami haussier</option><option>Harami baissier</option>
           <option>Doji Dragonfly</option><option>Doji Gravestone</option>
         </select>
+        <select id="jf-tradetype" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="">🔄 Type trade</option>
+          <option value="reversal">🔄 Retournement</option>
+          <option value="continuation">➡️ Continuation</option>
+        </select>
+        <select id="jf-minscore" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="">⭐ Score min</option>
+          <option value="3">≥ 3/5</option>
+          <option value="4">≥ 4/5</option>
+          <option value="5">5/5 parfait</option>
+        </select>
         <select id="jf-week" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
           <option value="">📅 Toutes dates</option>
           <option value="week">Cette semaine</option>
@@ -1527,6 +1539,13 @@
           <option value="">📦 Tous OB</option>
           <option value="body">Corps</option>
           <option value="wick">Wick</option>
+        </select>
+        <select id="jf-sort" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="recent">↓ Plus récent</option>
+          <option value="oldest">↑ Plus ancien</option>
+          <option value="rr-desc">RR le plus haut</option>
+          <option value="rr-asc">RR le plus bas</option>
+          <option value="score-desc">⭐ Score le plus haut</option>
         </select>
         <button onclick="resetJournalFilters()" style="height:30px;padding:0 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:11px;cursor:pointer;">✕ Reset</button>
         <span id="jf-count" style="font-size:11px;color:#475569;"></span>
@@ -4462,10 +4481,12 @@ function setJournalFilter(f) {
 function resetJournalFilters() {
   journalFilter = 'all';
   setJournalFilter('all');
-  ['jf-pattern','jf-week','jf-obtype'].forEach(id => {
+  ['jf-pattern','jf-week','jf-obtype','jf-tradetype','jf-minscore'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const sort = document.getElementById('jf-sort');
+  if (sort) sort.value = 'recent';
 }
 
 function getWeekBounds(offset=0) {
@@ -4503,6 +4524,10 @@ function refreshJournalInner() {
   else if (journalFilter === 'short') data = data.filter(t => t.direction==='SHORT');
   const pat = document.getElementById('jf-pattern');
   if (pat && pat.value) data = data.filter(t => t.candlePattern===pat.value);
+  const tt = document.getElementById('jf-tradetype');
+  if (tt && tt.value) data = data.filter(t => t.tradeType===tt.value);
+  const ms = document.getElementById('jf-minscore');
+  if (ms && ms.value) data = data.filter(t => calcSetupScore(t) >= parseInt(ms.value));
   const wk = document.getElementById('jf-week');
   if (wk && wk.value) {
     const [s,e] = wk.value==='week'?getWeekBounds(0):wk.value==='lastweek'?getWeekBounds(-1):wk.value==='month'?getMonthBounds(0):getMonthBounds(-1);
@@ -4510,6 +4535,16 @@ function refreshJournalInner() {
   }
   const ob = document.getElementById('jf-obtype');
   if (ob && ob.value) data = data.filter(t => t.obType===ob.value);
+
+  // Tri
+  const sort = document.getElementById('jf-sort');
+  const sortVal = sort ? sort.value : 'recent';
+  const dt = t => new Date((t.date||'2000-01-01')+'T'+(t.time||'00:00'));
+  if (sortVal === 'recent') data.sort((a,b) => dt(b)-dt(a));
+  else if (sortVal === 'oldest') data.sort((a,b) => dt(a)-dt(b));
+  else if (sortVal === 'rr-desc') data.sort((a,b) => (parseFloat(b.rr)||0)-(parseFloat(a.rr)||0));
+  else if (sortVal === 'rr-asc') data.sort((a,b) => (parseFloat(a.rr)||0)-(parseFloat(b.rr)||0));
+  else if (sortVal === 'score-desc') data.sort((a,b) => calcSetupScore(b)-calcSetupScore(a));
   const list = document.getElementById('trade-list');
   const empty = document.getElementById('journal-empty');
   const total = trades.length;
