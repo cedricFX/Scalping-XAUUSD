@@ -231,8 +231,8 @@
     /* CALENDAR */
     .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
     .cal-weekdays div { font-size:10px; font-weight:600; color:#475569; text-align:center; text-transform:uppercase; letter-spacing:0.05em; padding:4px 0; }
-    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-    .cal-day { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; border:1px solid transparent; position:relative; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-day { height:48px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; border:1px solid transparent; position:relative; }
     .cal-day:hover { border-color:rgba(255,255,255,0.15); }
     .cal-day.empty { cursor:default; }
     .cal-day.today { border-color:rgba(6,182,212,0.5); }
@@ -1028,6 +1028,43 @@
         <div class="field"><div class="field-label">OB (pips)</div><input type="number" step="0.1" min="0" id="edit-fvgsize" class="input" /></div>
         <div class="field"><div class="field-label">Heure de fin</div><input type="time" id="edit-timeend" class="input" /></div>
         <div class="field"><div class="field-label">Risque (€)</div><input type="number" step="1" id="edit-riskeur" class="input" /></div>
+
+        <!-- Qualité du setup -->
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">Type d'OB</div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-ob-body" onclick="setEditObType('body')" style="flex:1;">📦 Corps (classique)</button>
+            <button class="toggle-btn" id="edit-ob-wick" onclick="setEditObType('wick')" style="flex:1;">🕯️ Wick (Rejection Block)</button>
+          </div>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">Statut de l'OB</div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-ob-fresh" onclick="setEditObStatus('fresh')" style="flex:1;">✨ Frais</button>
+            <button class="toggle-btn" id="edit-ob-mitigated" onclick="setEditObStatus('mitigated')" style="flex:1;">♻️ Mitigé</button>
+          </div>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">Type d'OB</div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-ob-body" onclick="setEditObType('body')" style="flex:1;">📦 Corps (classique)</button>
+            <button class="toggle-btn" id="edit-ob-wick" onclick="setEditObType('wick')" style="flex:1;">🕯️ Wick (Rejection Block)</button>
+          </div>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">Qualité d'impulsion</div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-impulse-strong" onclick="setEditImpulse('strong')" style="flex:1;">💪 Forte</button>
+            <button class="toggle-btn" id="edit-impulse-weak" onclick="setEditImpulse('weak')" style="flex:1;">⚠️ Faible</button>
+          </div>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">Type de trade</div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-type-reversal" onclick="setEditTradeType('reversal')" style="flex:1;">🔄 Retournement</button>
+            <button class="toggle-btn" id="edit-type-continuation" onclick="setEditTradeType('continuation')" style="flex:1;">➡️ Continuation</button>
+          </div>
+        </div>
         <div class="field full-width" style="margin-top:6px;">
           <div class="field-label">Lien screenshot 1</div>
           <div style="position:relative;">
@@ -4351,6 +4388,31 @@ function renderBtVsReal() {
 let editingTradeId = null;
 let editDirection = 'LONG';
 let editResult = 'WIN';
+let editObType = null;
+let editObStatus = null;
+let editImpulse = null;
+let editTradeType = null;
+
+function setEditObType(v) {
+  editObType = v;
+  document.getElementById('edit-ob-body').className = 'toggle-btn' + (v==='body'?' active-long':'');
+  document.getElementById('edit-ob-wick').className = 'toggle-btn' + (v==='wick'?' active-long':'');
+}
+function setEditObStatus(v) {
+  editObStatus = v;
+  document.getElementById('edit-ob-fresh').className = 'toggle-btn' + (v==='fresh'?' active-long':'');
+  document.getElementById('edit-ob-mitigated').className = 'toggle-btn' + (v==='mitigated'?' active-short':'');
+}
+function setEditImpulse(v) {
+  editImpulse = v;
+  document.getElementById('edit-impulse-strong').className = 'toggle-btn' + (v==='strong'?' active-long':'');
+  document.getElementById('edit-impulse-weak').className = 'toggle-btn' + (v==='weak'?' active-short':'');
+}
+function setEditTradeType(v) {
+  editTradeType = v;
+  document.getElementById('edit-type-reversal').className = 'toggle-btn' + (v==='reversal'?' active-long':'');
+  document.getElementById('edit-type-continuation').className = 'toggle-btn' + (v==='continuation'?' active-long':'');
+}
 
 function openEditTrade(id) {
   const t = trades.find(tr => String(tr.id) === String(id));
@@ -4367,6 +4429,15 @@ function openEditTrade(id) {
   document.getElementById('edit-slpips').value = t.slPips || '';
   document.getElementById('edit-fvgsize').value = t.fvgSize || '';
   document.getElementById('edit-riskeur').value = t.riskEur || '';
+  // Qualité du setup
+  setEditObType(t.obType || null);
+  if (!t.obType) { document.getElementById('edit-ob-body').className='toggle-btn'; document.getElementById('edit-ob-wick').className='toggle-btn'; }
+  setEditObStatus(t.obStatus || null);
+  if (!t.obStatus) { document.getElementById('edit-ob-fresh').className='toggle-btn'; document.getElementById('edit-ob-mitigated').className='toggle-btn'; }
+  setEditImpulse(t.impulseQuality || null);
+  if (!t.impulseQuality) { document.getElementById('edit-impulse-strong').className='toggle-btn'; document.getElementById('edit-impulse-weak').className='toggle-btn'; }
+  setEditTradeType(t.tradeType || null);
+  if (!t.tradeType) { document.getElementById('edit-type-reversal').className='toggle-btn'; document.getElementById('edit-type-continuation').className='toggle-btn'; }
   document.getElementById('edit-screenshot').value = t.screenshot || '';
   document.getElementById('edit-screenshot2').value = t.screenshot2 || '';
   document.getElementById('edit-screenshot3').value = t.screenshot3 || '';
@@ -4427,6 +4498,10 @@ function saveEditTrade() {
     slPips: document.getElementById('edit-slpips').value ? parseFloat(document.getElementById('edit-slpips').value) : null,
     fvgSize: document.getElementById('edit-fvgsize').value ? parseFloat(document.getElementById('edit-fvgsize').value) : null,
     riskEur: document.getElementById('edit-riskeur').value ? parseFloat(document.getElementById('edit-riskeur').value) : null,
+    obType: editObType !== null ? editObType : (trades[idx].obType || null),
+    obStatus: editObStatus !== null ? editObStatus : (trades[idx].obStatus || null),
+    impulseQuality: editImpulse !== null ? editImpulse : (trades[idx].impulseQuality || null),
+    tradeType: editTradeType !== null ? editTradeType : (trades[idx].tradeType || null),
     screenshot: document.getElementById('edit-screenshot').value,
     screenshot2: document.getElementById('edit-screenshot2').value,
     screenshot3: document.getElementById('edit-screenshot3').value,
