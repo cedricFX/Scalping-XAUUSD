@@ -229,9 +229,9 @@
     .sl-pip-btn.active { border-color:#f43f5e; background:rgba(244,63,94,0.12); color:#f43f5e; }
 
     /* CALENDAR */
-    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
-    .cal-weekdays div { font-size:10px; font-weight:600; color:#475569; text-align:center; text-transform:uppercase; letter-spacing:0.05em; padding:4px 0; }
-    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+    .cal-weekdays div { font-size:10px; font-weight:600; color:#475569; text-align:center; text-transform:uppercase; letter-spacing:0.05em; padding:2px 0; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:48px; gap:2px; }
     .cal-day { height:48px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; border:1px solid transparent; position:relative; }
     .cal-day:hover { border-color:rgba(255,255,255,0.15); }
     .cal-day.empty { cursor:default; }
@@ -1295,6 +1295,57 @@
       </div>
     </div>
     <div class="page-sub" id="stats-sub">Aucun trade enregistré pour l'instant</div>
+
+    <!-- FILTRES STATISTIQUES -->
+    <div id="stats-filters" style="display:none;margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <!-- Période -->
+        <select id="sf-period" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="all">📅 Toute la période</option>
+          <option value="week">Cette semaine</option>
+          <option value="lastweek">Semaine dernière</option>
+          <option value="month">Ce mois</option>
+          <option value="lastmonth">Mois dernier</option>
+          <option value="3months">3 derniers mois</option>
+        </select>
+        <!-- Mode -->
+        <select id="sf-mode" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="all">🔬 BT + Réel</option>
+          <option value="backtest">🔬 Backtest</option>
+          <option value="real">🔴 Réel</option>
+        </select>
+        <!-- Direction -->
+        <select id="sf-direction" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="all">↕️ Long + Short</option>
+          <option value="LONG">📈 Long</option>
+          <option value="SHORT">📉 Short</option>
+        </select>
+        <!-- Type OB -->
+        <select id="sf-obtype" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="all">📦 Tous OB</option>
+          <option value="body">📦 Corps</option>
+          <option value="wick">🕯️ Wick</option>
+        </select>
+        <!-- Tranche horaire -->
+        <select id="sf-hour" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="all">🕐 Toutes heures</option>
+          <option value="7">07h - 08h</option>
+          <option value="8">08h - 09h</option>
+          <option value="9">09h - 10h</option>
+          <option value="10">10h - 11h</option>
+        </select>
+        <!-- Score min -->
+        <select id="sf-score" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+          <option value="0">⭐ Tous scores</option>
+          <option value="3">≥ 3/5</option>
+          <option value="4">≥ 4/5</option>
+          <option value="5">5/5 parfait</option>
+        </select>
+        <button onclick="resetStatsFilters()" style="height:30px;padding:0 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:11px;cursor:pointer;white-space:nowrap;">✕ Reset</button>
+        <span id="sf-count" style="font-size:11px;color:#475569;"></span>
+      </div>
+    </div>
+
     <div id="stats-content" style="display:none;">
 
       <!-- ═══ ESPÉRANCE MATHÉMATIQUE (hero card) ═══ -->
@@ -3268,10 +3319,82 @@ function setStatsFilter(f) {
   renderCalendar();
 }
 
+function resetStatsFilters() {
+  ['sf-period','sf-mode','sf-direction','sf-obtype','sf-hour'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.id === 'sf-score' ? '0' : 'all';
+  });
+  const sc = document.getElementById('sf-score');
+  if (sc) sc.value = '0';
+  refreshStats();
+}
+
+function getStatsDateBounds(period) {
+  const now = new Date();
+  const day = now.getDay();
+  if (period === 'week') {
+    const mon = new Date(now); mon.setDate(now.getDate() - (day===0?6:day-1)); mon.setHours(0,0,0,0);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    return [mon, sun];
+  }
+  if (period === 'lastweek') {
+    const mon = new Date(now); mon.setDate(now.getDate() - (day===0?6:day-1) - 7); mon.setHours(0,0,0,0);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    return [mon, sun];
+  }
+  if (period === 'month') {
+    return [new Date(now.getFullYear(), now.getMonth(), 1), new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59)];
+  }
+  if (period === 'lastmonth') {
+    return [new Date(now.getFullYear(), now.getMonth()-1, 1), new Date(now.getFullYear(), now.getMonth(), 0, 23,59,59)];
+  }
+  if (period === '3months') {
+    return [new Date(now.getFullYear(), now.getMonth()-2, 1), new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59)];
+  }
+  return null;
+}
+
 function getFilteredTrades() {
   let data = trades;
+
+  // Filtre haut niveau (BT/Réel ancien système)
   if (statsFilter === 'backtest') data = data.filter(t => t.mode === 'backtest');
-  if (statsFilter === 'real') data = data.filter(t => t.mode === 'real');
+  else if (statsFilter === 'real') data = data.filter(t => t.mode === 'real');
+
+  // Filtres stats bar
+  const period = document.getElementById('sf-period');
+  if (period && period.value !== 'all') {
+    const bounds = getStatsDateBounds(period.value);
+    if (bounds) {
+      const [s, e] = bounds;
+      data = data.filter(t => { const d = new Date((t.date||'2000-01-01')+'T12:00:00'); return d >= s && d <= e; });
+    }
+  }
+  const mode = document.getElementById('sf-mode');
+  if (mode && mode.value !== 'all') data = data.filter(t => t.mode === mode.value);
+
+  const dir = document.getElementById('sf-direction');
+  if (dir && dir.value !== 'all') data = data.filter(t => t.direction === dir.value);
+
+  const obtype = document.getElementById('sf-obtype');
+  if (obtype && obtype.value !== 'all') data = data.filter(t => t.obType === obtype.value);
+
+  const hour = document.getElementById('sf-hour');
+  if (hour && hour.value !== 'all') {
+    const h = parseInt(hour.value);
+    data = data.filter(t => { const th = parseInt((t.time||'').split(':')[0]); return th === h; });
+  }
+
+  const score = document.getElementById('sf-score');
+  if (score && parseInt(score.value) > 0) {
+    const min = parseInt(score.value);
+    data = data.filter(t => calcSetupScore(t) >= min);
+  }
+
+  // Update count
+  const cnt = document.getElementById('sf-count');
+  if (cnt) cnt.textContent = data.length < trades.length ? `${data.length} / ${trades.length} trades` : `${trades.length} trades`;
+
   return data;
 }
 
@@ -3906,6 +4029,7 @@ function refreshStats() {
   const avgRR = total > 0 ? (data.reduce((a,t) => a+(parseFloat(t.rr)||0), 0)/total).toFixed(2) : '—';
   const winrate = total > 0 ? ((wins/total)*100).toFixed(1)+'%' : '—';
   document.getElementById('stats-sub').textContent = total > 0 ? `Basé sur ${total} trade${total>1?'s':''} — filtre : ${statsFilter==='all'?'tous':statsFilter}` : 'Aucun trade enregistré pour l\'instant';
+  document.getElementById('stats-filters').style.display = total > 0 ? '' : 'none';
   if (total === 0) { document.getElementById('stats-content').style.display='none'; document.getElementById('stats-empty').style.display=''; return; }
   document.getElementById('stats-content').style.display=''; document.getElementById('stats-empty').style.display='none';
   document.getElementById('s-winrate').textContent = winrate;
