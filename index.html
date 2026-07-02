@@ -130,7 +130,7 @@
     #timer-display { font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
     .timer-sub { font-size:10px; color:#475569; }
 
-    /* FVG APLUS PANEL */
+    /* OB APLUS PANEL */
     .fvg-panel { padding:0 24px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     .aplus-check { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; border:1px solid rgba(168,85,247,0.25); background:rgba(168,85,247,0.06); cursor:pointer; user-select:none; transition:all 0.2s; flex:1; min-width:200px; }
     .aplus-check:hover { border-color:rgba(168,85,247,0.5); }
@@ -2128,7 +2128,7 @@ function expireTimer() {
 }
 
 // ═══════════════════════════════════
-//  FENÊTRE FVG (50 min après condition 2 validée)
+//  FENÊTRE OB (50 min après condition 2 validée)
 // ═══════════════════════════════════
 const FVG_WINDOW_DURATION = 50 * 60; // 50 minutes
 let fvgWindowInterval = null;
@@ -2159,7 +2159,7 @@ function startFvgWindow() {
     const totalMin = h * 60 + m + Math.floor(FVG_WINDOW_DURATION / 60);
     const dh = Math.floor(totalMin / 60) % 24, dm = totalMin % 60;
     const deadline = fmt2(dh) + ':' + fmt2(dm);
-    badge.textContent = '→ ' + deadline + ' (FVG)';
+    badge.textContent = '→ ' + deadline + ' (OB)';
     badge.style.color = '#06b6d4';
     badge.style.borderColor = 'rgba(6,182,212,0.4)';
     badge.style.background = 'rgba(6,182,212,0.08)';
@@ -2186,7 +2186,7 @@ function fvgWindowTick() {
   }
   const pct = left / FVG_WINDOW_DURATION;
   const color = pct > 0.4 ? '#10b981' : pct > 0.15 ? '#f59e0b' : '#f43f5e';
-  badge.textContent = '⏱ ' + fmtCountdown(Math.floor(left)) + ' (FVG)';
+  badge.textContent = '⏱ ' + fmtCountdown(Math.floor(left)) + ' (OB)';
   badge.style.color = color;
   badge.style.borderColor = color + '55';
   badge.style.background = color + '11';
@@ -2212,7 +2212,7 @@ function stopFvgWindow() {
 function expireFvgWindow() {
   fvgWindowExpired = true;
   const badge = document.getElementById('fvg-timer-badge');
-  badge.textContent = '⛔ Fenêtre FVG dépassée';
+  badge.textContent = '⛔ Fenêtre OB dépassée';
   badge.style.color = '#f43f5e';
   badge.style.borderColor = 'rgba(244,63,94,0.4)';
   badge.style.background = 'rgba(244,63,94,0.08)';
@@ -2224,7 +2224,7 @@ function expireFvgWindow() {
   document.getElementById('cb-first').classList.add('expired');
   document.getElementById('lbl-first').classList.add('expired-label');
   document.getElementById('first-panel').classList.add('expired-panel');
-  document.getElementById('expired-msg').textContent = '⛔ La fenêtre de 50 min pour valider le FVG (condition 3) est dépassée. Reset pour recommencer.';
+  document.getElementById('expired-msg').textContent = '⛔ La fenêtre de 50 min pour retester l\'OB (condition 3) est dépassée. Reset pour recommencer.';
   document.getElementById('expired-msg').style.display = '';
   document.getElementById('expired-badge').style.display = '';
   document.getElementById('fvg-aplus-panel').style.display = 'none';
@@ -2555,7 +2555,7 @@ function calcLotSize() {
 }
 
 // ═══════════════════════════════════
-//  FVG SIZE VALIDATION
+//  OB SIZE VALIDATION
 // ═══════════════════════════════════
 let fvgSize = null;
 const FVG_MIN = 0, FVG_MAX = 99999; // Gold OB : taille indicative, pas de contrainte stricte
@@ -2592,7 +2592,7 @@ function onFvgTimeInput() {
     hint.textContent = '✓ Dans la fenêtre (limite : ' + deadline + ')';
     hint.style.color = '#10b981';
   } else {
-    hint.textContent = '⛔ Hors fenêtre — limite à ' + deadline + '. Le FVG sera invalidé.';
+    hint.textContent = '⛔ Hors fenêtre — limite à ' + deadline + '. L\'OB sera invalidé.';
     hint.style.color = '#f43f5e';
   }
 }
@@ -2648,7 +2648,7 @@ function onFvgSizeInput() {
   // Valid size — mais on vérifie d'abord la fenêtre des 50 min en backtest
   if (!isFvgTimeWithinWindow()) {
     fvgSize = null;
-    hint.textContent = '⛔ FVG hors fenêtre des 50 min — renseigne une heure valide ci-dessus';
+    hint.textContent = '⛔ OB hors fenêtre des 50 min — renseigne une heure valide ci-dessus';
     hint.style.color = '#f43f5e';
     badge.style.display = 'none';
     document.getElementById('lot-calc').style.display = 'none';
