@@ -3148,7 +3148,7 @@ function submitTrade() {
     aplus: aplussActive,
     golden: goldenActive,
     candlePattern: selectedCandlePattern,
-    obTime: secondTime || null,
+    obTime: (document.getElementById('second-time') ? document.getElementById('second-time').value : null) || null,
     tradeType: currentTradeType,
     impulseQuality: currentImpulseQuality,
     obStatus: currentObStatus,
