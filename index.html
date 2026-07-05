@@ -1533,6 +1533,14 @@
         <div id="ob-size-summary" style="display:none;margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;"></div>
       </div>
 
+      <!-- ═══ Temps de retest ═══ -->
+      <div class="chart-box" style="padding:14px 16px;margin-bottom:12px;">
+        <div class="chart-title" style="margin-bottom:4px;">⏱️ Temps de retest de l'OB</div>
+        <div style="font-size:10px;color:#475569;margin-bottom:12px;">Durée entre la formation de l'OB et l'entrée · nécessite l'heure OB (condition 02)</div>
+        <div id="retest-time-stats"></div>
+        <div id="retest-time-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne l'heure de formation de l'OB (condition 02) pour voir ces stats.</div>
+      </div>
+
       <!-- ═══ Heatmap + BT vs Réel ═══ -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div class="chart-box" style="margin-top:0;padding:14px 16px;">
@@ -3140,6 +3148,7 @@ function submitTrade() {
     aplus: aplussActive,
     golden: goldenActive,
     candlePattern: selectedCandlePattern,
+    obTime: secondTime || null,
     tradeType: currentTradeType,
     impulseQuality: currentImpulseQuality,
     obStatus: currentObStatus,
@@ -3911,6 +3920,87 @@ function renderQualityStats(data) {
 }
 
 // ═══════════════════════════════════
+//  TEMPS DE RETEST DE L'OB
+// ═══════════════════════════════════
+function renderRetestTimeStats(data) {
+  const container = document.getElementById('retest-time-stats');
+  const empty = document.getElementById('retest-time-empty');
+
+  // Calcule le délai retest = heure entrée - heure OB
+  const timeToMin = t => {
+    const [h, m] = (t || '').split(':').map(Number);
+    return (!isNaN(h) && !isNaN(m)) ? h * 60 + m : null;
+  };
+
+  const withRetest = data.filter(t => {
+    const obMin = timeToMin(t.obTime);
+    const entMin = timeToMin(t.time);
+    return obMin !== null && entMin !== null && entMin >= obMin;
+  }).map(t => ({
+    ...t,
+    retestMin: timeToMin(t.time) - timeToMin(t.obTime)
+  }));
+
+  if (withRetest.length < 2) {
+    container.innerHTML = ''; empty.style.display = ''; return;
+  }
+  empty.style.display = 'none';
+
+  // Tranches : < 5min, 5-10, 10-20, 20-35, 35-50
+  const slots = [
+    { label: '< 5 min', desc: 'Très rapide', min: 0, max: 5 },
+    { label: '5 – 10 min', desc: 'Rapide', min: 5, max: 10 },
+    { label: '10 – 20 min', desc: 'Normal', min: 10, max: 20 },
+    { label: '20 – 35 min', desc: 'Lent', min: 20, max: 35 },
+    { label: '35 – 50 min', desc: 'Très lent', min: 35, max: 50 },
+  ];
+
+  slots.forEach(s => { s.wins = 0; s.losses = 0; s.bes = 0; s.total = 0; });
+
+  withRetest.forEach(t => {
+    const slot = slots.find(s => t.retestMin >= s.min && t.retestMin < s.max);
+    if (!slot) return;
+    slot.total++;
+    if (t.result === 'WIN') slot.wins++;
+    else if (t.result === 'LOSS') slot.losses++;
+    else slot.bes++;
+  });
+
+  const active = slots.filter(s => s.total > 0);
+  const avgRetest = (withRetest.reduce((s, t) => s + t.retestMin, 0) / withRetest.length).toFixed(0);
+
+  let html = `<div style="font-size:11px;color:#64748b;margin-bottom:12px;">⏱ Retest moyen : <strong style="color:#e2e8f0;">${avgRetest} min</strong> · sur ${withRetest.length} trades</div>`;
+
+  active.forEach(s => {
+    const wr = s.total > 0 ? s.wins / s.total * 100 : 0;
+    const color = wr >= 60 ? '#10b981' : wr >= 40 ? '#f59e0b' : '#f43f5e';
+    html += `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div>
+          <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${s.label}</span>
+          <span style="font-size:10px;color:#475569;margin-left:8px;">${s.desc}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:10px;color:#475569;">W${s.wins}/L${s.losses}${s.bes?'/BE'+s.bes:''} · ${s.total}T</span>
+          <span style="font-size:14px;font-weight:800;color:${color};">${wr.toFixed(0)}%</span>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${wr}%;background:${color};"></div></div>
+    </div>`;
+  });
+
+  // Meilleure tranche
+  const best = [...active].filter(s => s.total >= 2).sort((a,b) => (b.wins/b.total) - (a.wins/a.total))[0];
+  if (best) {
+    html += `<div style="margin-top:6px;padding:8px 12px;border-radius:8px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);font-size:11px;color:#06b6d4;">
+      ✓ Meilleur délai : <strong>${best.label}</strong> — ${(best.wins/best.total*100).toFixed(0)}% winrate sur ${best.total} trade${best.total>1?'s':''}
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════
 //  ANALYSE TAILLE OB
 // ═══════════════════════════════════
 function renderObSizeStats(data) {
@@ -4068,6 +4158,7 @@ function refreshStats() {
   try { renderDrawdown(data); } catch(e) { console.error('renderDrawdown:', e); }
   try { renderSetupScore(data); } catch(e) { console.error('renderSetupScore:', e); }
   try { renderQualityStats(data); } catch(e) { console.error('renderQualityStats:', e); }
+  try { renderRetestTimeStats(data); } catch(e) { console.error('renderRetestTimeStats:', e); }
   try { renderObSizeStats(data); } catch(e) { console.error('renderObSizeStats:', e); }
   try { renderHeatmap(data); } catch(e) { console.error('renderHeatmap:', e); }
   try { renderBtVsReal(); } catch(e) { console.error('renderBtVsReal:', e); }
