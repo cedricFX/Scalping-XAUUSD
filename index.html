@@ -1223,7 +1223,7 @@
             <button class="sl-pip-btn" onclick="setSlPips(50)">50p</button>
             <button class="sl-pip-btn" onclick="setSlPips(80)">80p</button>
           </div>
-          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="1" max="500" step="1" placeholder="pips" oninput="onSlPipsInput()" />
+          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="0.1" max="500" step="0.1" placeholder="pips" oninput="onSlPipsInput()" />
           <div id="sl-pips-display" style="font-size:12px;color:#475569;"></div>
         </div>
       </div>
@@ -3018,8 +3018,8 @@ function onSlPipsInput() {
 }
 function updateSlPipsDisplay(v) {
   const el = document.getElementById('sl-pips-display');
-  if (isNaN(v) || v < 2 || v > 8) {
-    el.textContent = '⚠️ Entre 2 et 8 pips'; el.style.color = '#f43f5e';
+  if (isNaN(v) || v <= 0) {
+    el.textContent = '⚠️ Valeur invalide'; el.style.color = '#f43f5e';
   } else {
     el.textContent = '✓ ' + v + ' pip' + (v > 1 ? 's' : ''); el.style.color = '#10b981';
   }
