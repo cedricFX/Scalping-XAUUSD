@@ -1045,13 +1045,6 @@
           </div>
         </div>
         <div class="field full-width" style="margin-top:6px;">
-          <div class="field-label">Type d'OB</div>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <button class="toggle-btn" id="edit-ob-body" onclick="setEditObType('body')" style="flex:1;">📦 Corps (classique)</button>
-            <button class="toggle-btn" id="edit-ob-wick" onclick="setEditObType('wick')" style="flex:1;">🕯️ Wick (Rejection Block)</button>
-          </div>
-        </div>
-        <div class="field full-width" style="margin-top:6px;">
           <div class="field-label">Qualité d'impulsion</div>
           <div style="display:flex;gap:8px;margin-top:6px;">
             <button class="toggle-btn" id="edit-impulse-strong" onclick="setEditImpulse('strong')" style="flex:1;">💪 Forte</button>
@@ -1700,6 +1693,11 @@ async function fetchTradesFromSheet() {
         timeEnd: normalizeTime(t.timeEnd),
         aplus: t.aplus === true || t.aplus === 'TRUE' || t.aplus === 'true',
         golden: t.golden === true || t.golden === 'TRUE' || t.golden === 'true',
+        impulseQuality: (t.impulseQuality && t.impulseQuality !== 'null' && t.impulseQuality !== '') ? t.impulseQuality : null,
+        tradeType: (t.tradeType && t.tradeType !== 'null' && t.tradeType !== '') ? t.tradeType : null,
+        obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
+        obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
+        candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
         checklist: typeof t.checklist === 'string'
           ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
           : (t.checklist || {}),
@@ -1778,6 +1776,12 @@ let journalFilter = 'all';
 let pendingDeleteId = null;
 let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]').map(t => ({
   ...t,
+  aplus: t.aplus === true || t.aplus === 'TRUE' || t.aplus === 'true',
+  impulseQuality: (t.impulseQuality && t.impulseQuality !== 'null' && t.impulseQuality !== '') ? t.impulseQuality : null,
+  tradeType: (t.tradeType && t.tradeType !== 'null' && t.tradeType !== '') ? t.tradeType : null,
+  obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
+  obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
+  candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
   checklist: typeof t.checklist === 'string'
     ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
     : (t.checklist || {}),
