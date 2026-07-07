@@ -1631,13 +1631,19 @@
           <option value="4">≥ 4/5</option>
           <option value="5">5/5 parfait</option>
         </select>
-        <select id="jf-week" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+        <select id="jf-week" onchange="onJfWeekChange()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
           <option value="">📅 Toutes dates</option>
           <option value="week">Cette semaine</option>
           <option value="lastweek">Semaine dernière</option>
           <option value="month">Ce mois</option>
           <option value="lastmonth">Mois dernier</option>
+          <option value="custom">📆 Dates personnalisées…</option>
         </select>
+        <div id="jf-custom-dates" style="display:none;gap:4px;align-items:center;flex-wrap:wrap;">
+          <input type="date" id="jf-date-from" onchange="refreshJournal()" class="input" style="height:30px;padding:0 6px;font-size:11px;width:130px;" />
+          <span style="font-size:11px;color:#475569;">→</span>
+          <input type="date" id="jf-date-to" onchange="refreshJournal()" class="input" style="height:30px;padding:0 6px;font-size:11px;width:130px;" />
+        </div>
         <select id="jf-obtype" onchange="refreshJournal()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
           <option value="">📦 Tous OB</option>
           <option value="body">Corps</option>
@@ -4801,6 +4807,13 @@ function setJournalFilter(f) {
   refreshJournal();
 }
 
+function onJfWeekChange() {
+  const val = document.getElementById('jf-week').value;
+  const customDiv = document.getElementById('jf-custom-dates');
+  if (customDiv) customDiv.style.display = val === 'custom' ? 'flex' : 'none';
+  refreshJournal();
+}
+
 function resetJournalFilters() {
   journalFilter = 'all';
   setJournalFilter('all');
@@ -4808,6 +4821,12 @@ function resetJournalFilters() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const jfFrom = document.getElementById('jf-date-from');
+  const jfTo = document.getElementById('jf-date-to');
+  if (jfFrom) jfFrom.value = '';
+  if (jfTo) jfTo.value = '';
+  const jfCustom = document.getElementById('jf-custom-dates');
+  if (jfCustom) jfCustom.style.display = 'none';
   const sort = document.getElementById('jf-sort');
   if (sort) sort.value = 'recent';
 }
@@ -4853,8 +4872,21 @@ function refreshJournalInner() {
   if (ms && ms.value) data = data.filter(t => calcSetupScore(t) >= parseInt(ms.value));
   const wk = document.getElementById('jf-week');
   if (wk && wk.value) {
-    const [s,e] = wk.value==='week'?getWeekBounds(0):wk.value==='lastweek'?getWeekBounds(-1):wk.value==='month'?getMonthBounds(0):getMonthBounds(-1);
-    data = data.filter(t => { const d=new Date(t.date+'T12:00:00'); return d>=s&&d<=e; });
+    if (wk.value === 'custom') {
+      const fromEl = document.getElementById('jf-date-from');
+      const toEl = document.getElementById('jf-date-to');
+      const from = fromEl && fromEl.value ? new Date(fromEl.value + 'T00:00:00') : null;
+      const to = toEl && toEl.value ? new Date(toEl.value + 'T23:59:59') : null;
+      if (from || to) {
+        data = data.filter(t => {
+          const d = new Date((t.date||'2000-01-01') + 'T12:00:00');
+          return (!from || d >= from) && (!to || d <= to);
+        });
+      }
+    } else {
+      const [s,e] = wk.value==='week'?getWeekBounds(0):wk.value==='lastweek'?getWeekBounds(-1):wk.value==='month'?getMonthBounds(0):getMonthBounds(-1);
+      data = data.filter(t => { const d=new Date(t.date+'T12:00:00'); return d>=s&&d<=e; });
+    }
   }
   const ob = document.getElementById('jf-obtype');
   if (ob && ob.value) data = data.filter(t => t.obType===ob.value);
