@@ -1300,14 +1300,21 @@
     <div id="stats-filters" style="display:none;margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
         <!-- Période -->
-        <select id="sf-period" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
+        <select id="sf-period" onchange="onSfPeriodChange()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
           <option value="all">📅 Toute la période</option>
           <option value="week">Cette semaine</option>
           <option value="lastweek">Semaine dernière</option>
           <option value="month">Ce mois</option>
           <option value="lastmonth">Mois dernier</option>
           <option value="3months">3 derniers mois</option>
+          <option value="custom">📆 Dates personnalisées…</option>
         </select>
+        <!-- Dates perso -->
+        <div id="sf-custom-dates" style="display:none;gap:4px;align-items:center;flex-wrap:wrap;">
+          <input type="date" id="sf-date-from" onchange="refreshStats()" class="input" style="height:30px;padding:0 6px;font-size:11px;width:130px;" />
+          <span style="font-size:11px;color:#475569;">→</span>
+          <input type="date" id="sf-date-to" onchange="refreshStats()" class="input" style="height:30px;padding:0 6px;font-size:11px;width:130px;" />
+        </div>
         <!-- Mode -->
         <select id="sf-mode" onchange="refreshStats()" class="input" style="height:30px;padding:0 8px;font-size:11px;width:auto;">
           <option value="all">🔬 BT + Réel</option>
@@ -3328,6 +3335,13 @@ function setStatsFilter(f) {
   renderCalendar();
 }
 
+function onSfPeriodChange() {
+  const val = document.getElementById('sf-period').value;
+  const customDiv = document.getElementById('sf-custom-dates');
+  if (customDiv) customDiv.style.display = val === 'custom' ? 'flex' : 'none';
+  refreshStats();
+}
+
 function resetStatsFilters() {
   ['sf-period','sf-mode','sf-direction','sf-obtype','sf-hour'].forEach(id => {
     const el = document.getElementById(id);
@@ -3335,6 +3349,12 @@ function resetStatsFilters() {
   });
   const sc = document.getElementById('sf-score');
   if (sc) sc.value = '0';
+  const from = document.getElementById('sf-date-from');
+  const to = document.getElementById('sf-date-to');
+  if (from) from.value = '';
+  if (to) to.value = '';
+  const customDiv = document.getElementById('sf-custom-dates');
+  if (customDiv) customDiv.style.display = 'none';
   refreshStats();
 }
 
@@ -3373,10 +3393,23 @@ function getFilteredTrades() {
   // Filtres stats bar
   const period = document.getElementById('sf-period');
   if (period && period.value !== 'all') {
-    const bounds = getStatsDateBounds(period.value);
-    if (bounds) {
-      const [s, e] = bounds;
-      data = data.filter(t => { const d = new Date((t.date||'2000-01-01')+'T12:00:00'); return d >= s && d <= e; });
+    if (period.value === 'custom') {
+      const fromEl = document.getElementById('sf-date-from');
+      const toEl = document.getElementById('sf-date-to');
+      const from = fromEl && fromEl.value ? new Date(fromEl.value + 'T00:00:00') : null;
+      const to = toEl && toEl.value ? new Date(toEl.value + 'T23:59:59') : null;
+      if (from || to) {
+        data = data.filter(t => {
+          const d = new Date((t.date||'2000-01-01') + 'T12:00:00');
+          return (!from || d >= from) && (!to || d <= to);
+        });
+      }
+    } else {
+      const bounds = getStatsDateBounds(period.value);
+      if (bounds) {
+        const [s, e] = bounds;
+        data = data.filter(t => { const d = new Date((t.date||'2000-01-01')+'T12:00:00'); return d >= s && d <= e; });
+      }
     }
   }
   const mode = document.getElementById('sf-mode');
