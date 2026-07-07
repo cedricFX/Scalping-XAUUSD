@@ -1059,6 +1059,38 @@
           </div>
         </div>
         <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">🕯️ Bougie de réaction (confirmation)</div>
+          <select id="edit-candle-pattern" onchange="setEditCandle(this.value)" class="input" style="margin-top:6px;font-size:12px;">
+            <option value="">— Aucune bougie sélectionnée —</option>
+            <optgroup label="Bougies simples">
+              <option>Marteau</option>
+              <option>Marteau inversé</option>
+              <option>Étoile filante</option>
+              <option>Pendu</option>
+              <option>Engulfing haussier</option>
+              <option>Engulfing baissier</option>
+              <option>Rejection haussière</option>
+              <option>Rejection baissière</option>
+            </optgroup>
+            <optgroup label="3 bougies">
+              <option>Morning Star</option>
+              <option>Evening Star</option>
+              <option>3 Soldats haussiers</option>
+              <option>3 Corbeaux baissiers</option>
+            </optgroup>
+            <optgroup label="Retournements 2 bougies">
+              <option>Tweezers Bottom</option>
+              <option>Tweezers Top</option>
+              <option>Piercing Line</option>
+              <option>Dark Cloud Cover</option>
+              <option>Harami haussier</option>
+              <option>Harami baissier</option>
+              <option>Doji Dragonfly</option>
+              <option>Doji Gravestone</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
           <div class="field-label">Lien screenshot 1</div>
           <div style="position:relative;">
             <input type="url" id="edit-screenshot" class="input" placeholder="https://www.tradingview.com/x/..." style="padding-right:80px;" />
@@ -4650,6 +4682,13 @@ let editObType = null;
 let editObStatus = null;
 let editImpulse = null;
 let editTradeType = null;
+let editCandle = undefined;
+
+function setEditCandle(v) {
+  editCandle = v || null;
+  const sel = document.getElementById('edit-candle-pattern');
+  if (sel) sel.value = v || '';
+}
 
 function setEditObType(v) {
   editObType = v;
@@ -4696,6 +4735,7 @@ function openEditTrade(id) {
   if (!t.impulseQuality) { document.getElementById('edit-impulse-strong').className='toggle-btn'; document.getElementById('edit-impulse-weak').className='toggle-btn'; }
   setEditTradeType(t.tradeType || null);
   if (!t.tradeType) { document.getElementById('edit-type-reversal').className='toggle-btn'; document.getElementById('edit-type-continuation').className='toggle-btn'; }
+  setEditCandle(t.candlePattern || null);
   document.getElementById('edit-screenshot').value = t.screenshot || '';
   document.getElementById('edit-screenshot2').value = t.screenshot2 || '';
   document.getElementById('edit-screenshot3').value = t.screenshot3 || '';
@@ -4760,6 +4800,7 @@ function saveEditTrade() {
     obStatus: editObStatus !== null ? editObStatus : (trades[idx].obStatus || null),
     impulseQuality: editImpulse !== null ? editImpulse : (trades[idx].impulseQuality || null),
     tradeType: editTradeType !== null ? editTradeType : (trades[idx].tradeType || null),
+    candlePattern: editCandle !== undefined ? editCandle : (trades[idx].candlePattern || null),
     screenshot: document.getElementById('edit-screenshot').value,
     screenshot2: document.getElementById('edit-screenshot2').value,
     screenshot3: document.getElementById('edit-screenshot3').value,
