@@ -484,6 +484,15 @@
             <button class="toggle-btn" id="impulse-weak" onclick="setImpulseQuality('weak');event.stopPropagation()" title="Petite bougie ou avec mèches importantes — OB moins fiable, vigilance accrue">⚠️ Faible</button>
           </div>
           <div id="impulse-hint" style="font-size:10px;color:#475569;margin-top:5px;line-height:1.5;"></div>
+
+          <!-- BOS CONFLUENCE -->
+          <div class="field-label" style="margin-top:12px;">BOS confirmé <span style="color:#475569;font-weight:400;text-transform:none;">(confluence · facultatif · +1⭐)</span></div>
+          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            <button class="toggle-btn" id="bos-m1" onclick="setBos('M1');event.stopPropagation()" title="Cassure de structure confirmée sur M1">📊 BOS M1</button>
+            <button class="toggle-btn" id="bos-m5" onclick="setBos('M5');event.stopPropagation()" title="Cassure de structure confirmée sur M5">📈 BOS M5</button>
+            <button class="toggle-btn" id="bos-both" onclick="setBos('M1+M5');event.stopPropagation()" title="BOS confirmé sur les deux timeframes — confluence maximale">🔥 M1 + M5</button>
+          </div>
+          <div style="font-size:10px;color:#475569;margin-top:5px;">Une bougie qui clôture au-delà du dernier swing dans le sens du trade.</div>
         </div>
       </div>
 
@@ -1064,6 +1073,14 @@
           <div style="display:flex;gap:8px;margin-top:6px;">
             <button class="toggle-btn" id="edit-type-reversal" onclick="setEditTradeType('reversal')" style="flex:1;">🔄 Retournement</button>
             <button class="toggle-btn" id="edit-type-continuation" onclick="setEditTradeType('continuation')" style="flex:1;">➡️ Continuation</button>
+          </div>
+        </div>
+        <div class="field full-width" style="margin-top:6px;">
+          <div class="field-label">BOS confirmé <span style="font-weight:400;color:#475569;text-transform:none;">(confluence · +1⭐)</span></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="edit-bos-m1" onclick="setEditBos('M1')" style="flex:1;">📊 M1</button>
+            <button class="toggle-btn" id="edit-bos-m5" onclick="setEditBos('M5')" style="flex:1;">📈 M5</button>
+            <button class="toggle-btn" id="edit-bos-both" onclick="setEditBos('M1+M5')" style="flex:1;">🔥 M1+M5</button>
           </div>
         </div>
         <div class="field full-width" style="margin-top:6px;">
@@ -1737,6 +1754,7 @@ async function fetchTradesFromSheet() {
         tradeType: (t.tradeType && t.tradeType !== 'null' && t.tradeType !== '') ? t.tradeType : null,
         obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
         obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
+        bos: (t.bos && t.bos !== 'null' && t.bos !== '') ? t.bos : null,
         candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
         checklist: typeof t.checklist === 'string'
           ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
@@ -1821,6 +1839,7 @@ let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]').map(t => ({
   tradeType: (t.tradeType && t.tradeType !== 'null' && t.tradeType !== '') ? t.tradeType : null,
   obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
   obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
+  bos: (t.bos && t.bos !== 'null' && t.bos !== '') ? t.bos : null,
   candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
   checklist: typeof t.checklist === 'string'
     ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
@@ -1869,6 +1888,14 @@ function setBias(bias) {
 let currentTradeType = null; // 'reversal' | 'continuation'
 
 let currentImpulseQuality = null; // 'strong' | 'weak'
+let currentBos = null; // 'M1' | 'M5' | 'M1+M5'
+
+function setBos(v) {
+  currentBos = (currentBos === v) ? null : v; // toggle
+  document.getElementById('bos-m1').className   = 'toggle-btn' + (currentBos === 'M1'    ? ' active-long' : '');
+  document.getElementById('bos-m5').className   = 'toggle-btn' + (currentBos === 'M5'    ? ' active-long' : '');
+  document.getElementById('bos-both').className = 'toggle-btn' + (currentBos === 'M1+M5' ? ' active-long' : '');
+}
 function setImpulseQuality(q) {
   currentImpulseQuality = q;
   document.getElementById('impulse-strong').className = 'toggle-btn' + (q === 'strong' ? ' active-long' : '');
@@ -2412,6 +2439,8 @@ function resetAll(force) {
   const hint = document.getElementById('trade-type-hint');
   if (hint) hint.textContent = '';
   currentImpulseQuality = null;
+  currentBos = null;
+  ['bos-m1','bos-m5','bos-both'].forEach(id => { const el = document.getElementById(id); if (el) el.className = 'toggle-btn'; });
   const isBtn = document.getElementById('impulse-strong');
   const iwBtn = document.getElementById('impulse-weak');
   if (isBtn) isBtn.className = 'toggle-btn';
@@ -3221,6 +3250,7 @@ function submitTrade() {
     obTime: (document.getElementById('second-time') ? document.getElementById('second-time').value : null) || null,
     tradeType: currentTradeType,
     impulseQuality: currentImpulseQuality,
+    bos: currentBos,
     obStatus: currentObStatus,
     obType: currentObType,
     checklist: {...checks},
@@ -3681,10 +3711,11 @@ function calcSetupScore(t) {
   if (t.obStatus === 'fresh') score++;
   if (t.impulseQuality === 'strong') score++;
   if (t.aplus) score++;
-  if (t.tradeType) score++;  // renseigné = conscient du type
+  if (t.tradeType) score++;
+  if (t.bos) score++; // BOS confirmé M1, M5 ou M1+M5
   if (t.candlePattern && ['Morning Star','3 Soldats haussiers','Evening Star','3 Corbeaux baissiers',
     'Engulfing haussier','Engulfing baissier','Tweezers Bottom','Tweezers Top'].includes(t.candlePattern)) score++;
-  return score;
+  return Math.min(score, 5);
 }
 
 function renderSetupScore(data) {
@@ -4755,6 +4786,14 @@ let editImpulse = null;
 let editTradeType = null;
 let editCandle = undefined;
 
+let editBos = null;
+function setEditBos(v) {
+  editBos = (editBos === v) ? null : v;
+  document.getElementById('edit-bos-m1').className   = 'toggle-btn' + (editBos === 'M1'    ? ' active-long' : '');
+  document.getElementById('edit-bos-m5').className   = 'toggle-btn' + (editBos === 'M5'    ? ' active-long' : '');
+  document.getElementById('edit-bos-both').className = 'toggle-btn' + (editBos === 'M1+M5' ? ' active-long' : '');
+}
+
 function setEditCandle(v) {
   editCandle = v || null;
   const sel = document.getElementById('edit-candle-pattern');
@@ -4807,6 +4846,11 @@ function openEditTrade(id) {
   setEditTradeType(t.tradeType || null);
   if (!t.tradeType) { document.getElementById('edit-type-reversal').className='toggle-btn'; document.getElementById('edit-type-continuation').className='toggle-btn'; }
   setEditCandle(t.candlePattern || null);
+  editBos = t.bos || null;
+  ['edit-bos-m1','edit-bos-m5','edit-bos-both'].forEach(id => { const el = document.getElementById(id); if(el) el.className='toggle-btn'; });
+  if (editBos === 'M1')    document.getElementById('edit-bos-m1').className = 'toggle-btn active-long';
+  if (editBos === 'M5')    document.getElementById('edit-bos-m5').className = 'toggle-btn active-long';
+  if (editBos === 'M1+M5') document.getElementById('edit-bos-both').className = 'toggle-btn active-long';
   document.getElementById('edit-screenshot').value = t.screenshot || '';
   document.getElementById('edit-screenshot2').value = t.screenshot2 || '';
   document.getElementById('edit-screenshot3').value = t.screenshot3 || '';
@@ -4872,6 +4916,7 @@ function saveEditTrade() {
     impulseQuality: editImpulse !== null ? editImpulse : (trades[idx].impulseQuality || null),
     tradeType: editTradeType !== null ? editTradeType : (trades[idx].tradeType || null),
     candlePattern: editCandle !== undefined ? editCandle : (trades[idx].candlePattern || null),
+    bos: editBos !== null ? editBos : (trades[idx].bos || null),
     screenshot: document.getElementById('edit-screenshot').value,
     screenshot2: document.getElementById('edit-screenshot2').value,
     screenshot3: document.getElementById('edit-screenshot3').value,
