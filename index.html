@@ -4609,10 +4609,8 @@ function runExport() {
 
 function exportReport(fromDate, toDate, periodLabel) {
   let data = getFilteredTrades();
-
   const rangeTrades = data.filter(t => t.date && t.date >= fromDate && t.date <= toDate)
     .sort((a,b) => (a.date+' '+(a.time||'')).localeCompare(b.date+' '+(b.time||'')));
-
   const total = rangeTrades.length;
   const wins = rangeTrades.filter(t=>t.result==='WIN').length;
   const losses = rangeTrades.filter(t=>t.result==='LOSS').length;
@@ -4622,59 +4620,165 @@ function exportReport(fromDate, toDate, periodLabel) {
   const withRisk = rangeTrades.filter(t => tradePnl(t) !== null);
   const pnlTotal = withRisk.reduce((a,t)=>a+tradePnl(t),0);
   const aplusCount = rangeTrades.filter(t=>t.aplus).length;
-  const goldenCount = rangeTrades.filter(t=>t.golden).length;
+  const avgSl = rangeTrades.filter(t=>t.slPips).length > 0
+    ? (rangeTrades.filter(t=>t.slPips).reduce((a,t)=>a+(parseFloat(t.slPips)||0),0)/rangeTrades.filter(t=>t.slPips).length).toFixed(2) : '—';
+  const avgObSize = rangeTrades.filter(t=>t.fvgSize).length > 0
+    ? (rangeTrades.filter(t=>t.fvgSize).reduce((a,t)=>a+(parseFloat(t.fvgSize)||0),0)/rangeTrades.filter(t=>t.fvgSize).length).toFixed(2) : '—';
+  const esperance = total > 0 ? ((parseFloat(winrate)/100*parseFloat(avgRR))-(1-parseFloat(winrate)/100)).toFixed(2) : '—';
 
-  const rows = rangeTrades.map(t => {
-    const rc = t.result==='WIN'?'#10b981':t.result==='LOSS'?'#f43f5e':'#f59e0b';
+  // Stats qualité
+  const calcWR = arr => arr.length > 0 ? (arr.filter(t=>t.result==='WIN').length/arr.length*100).toFixed(0)+'%' : '—';
+  const withBos = rangeTrades.filter(t=>t.bos);
+  const withoutBos = rangeTrades.filter(t=>!t.bos);
+  const fresh = rangeTrades.filter(t=>t.obStatus==='fresh');
+  const mitig = rangeTrades.filter(t=>t.obStatus==='mitigated');
+  const strong = rangeTrades.filter(t=>t.impulseQuality==='strong');
+  const weak = rangeTrades.filter(t=>t.impulseQuality==='weak');
+  const bodyOB = rangeTrades.filter(t=>t.obType==='body');
+  const wickOB = rangeTrades.filter(t=>t.obType==='wick');
+  const reversal = rangeTrades.filter(t=>t.tradeType==='reversal');
+  const continu = rangeTrades.filter(t=>t.tradeType==='continuation');
+
+  const qualRows = [
+    ['✨ OB Frais', fresh, calcWR(fresh)],
+    ['♻️ OB Mitigé', mitig, calcWR(mitig)],
+    ['💪 Impulsion forte', strong, calcWR(strong)],
+    ['⚠️ Impulsion faible', weak, calcWR(weak)],
+    ['📦 OB Corps', bodyOB, calcWR(bodyOB)],
+    ['🕯️ OB Wick', wickOB, calcWR(wickOB)],
+    ['🔄 Retournement', reversal, calcWR(reversal)],
+    ['➡️ Continuation', continu, calcWR(continu)],
+  ].filter(([,arr])=>arr.length>0).map(([label,arr,wr])=>{
+    const pct = parseInt(wr);
+    const c = pct>=50?'#059669':pct>=35?'#d97706':'#dc2626';
+    return `<tr><td>${label}</td><td>${arr.length}</td><td style="font-weight:700;color:${c}">${wr}</td></tr>`;
+  }).join('');
+
+  const bosBreakdown = [...new Set(rangeTrades.filter(t=>t.bos).map(t=>t.bos))].map(b=>{
+    const g = rangeTrades.filter(t=>t.bos===b);
+    const wr = (g.filter(t=>t.result==='WIN').length/g.length*100).toFixed(0);
+    return `<tr><td style="padding-left:14px;color:#64748b;">↳ BOS ${b}</td><td>${g.length}</td><td style="font-weight:700;">${wr}%</td></tr>`;
+  }).join('');
+
+  const scoreGroups = [1,2,3,4,5].map(s=>{
+    const g = rangeTrades.filter(t=>calcSetupScore(t)===s);
+    const wr = g.length>0?(g.filter(t=>t.result==='WIN').length/g.length*100).toFixed(0):'—';
+    return g.length>0?`<tr><td>${'⭐'.repeat(s)} ${s}/5</td><td>${g.length}</td><td style="font-weight:700;color:${parseInt(wr)>=40?'#059669':'#dc2626'}">${wr}%</td></tr>`:'';
+  }).join('');
+
+  const patternMap = {};
+  rangeTrades.filter(t=>t.candlePattern).forEach(t=>{
+    if(!patternMap[t.candlePattern]) patternMap[t.candlePattern]={w:0,l:0,be:0};
+    if(t.result==='WIN') patternMap[t.candlePattern].w++;
+    else if(t.result==='LOSS') patternMap[t.candlePattern].l++;
+    else patternMap[t.candlePattern].be++;
+  });
+  const patternRows = Object.entries(patternMap).sort((a,b)=>(b[1].w+b[1].l+b[1].be)-(a[1].w+a[1].l+a[1].be)).map(([p,v])=>{
+    const tot=v.w+v.l+v.be; const wr=(v.w/tot*100).toFixed(0);
+    return `<tr><td>${p}</td><td>${tot}</td><td style="font-weight:700;color:${wr>=50?'#059669':'#dc2626'}">${wr}%</td><td>${v.w}W / ${v.l}L${v.be?' / '+v.be+'BE':''}</td></tr>`;
+  }).join('');
+
+  const rows = rangeTrades.map(t=>{
+    const rc=t.result==='WIN'?'#059669':t.result==='LOSS'?'#dc2626':'#d97706';
+    const score=calcSetupScore(t);
+    const stars=score>0?'⭐'.repeat(score):'';
+    const obTypeLabel=t.obType==='body'?'📦':t.obType==='wick'?'🕯️':'';
+    const obStatusLabel=t.obStatus==='fresh'?'✨':t.obStatus==='mitigated'?'♻️':'';
+    const impulseLabel=t.impulseQuality==='strong'?'💪':t.impulseQuality==='weak'?'⚠️':'';
+    const ttLabel=t.tradeType==='reversal'?'🔄':t.tradeType==='continuation'?'➡️':'';
+    const bosLabel=t.bos?`<span style="background:#dcfce7;color:#059669;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700;">BOS ${t.bos}</span>`:'';
+    const candleLabel=t.candlePattern?`<span style="color:#0891b2;font-size:10px;">${t.candlePattern}</span>`:'';
+    const noteLabel=t.notes?`<div style="font-size:9px;color:#94a3b8;font-style:italic;margin-top:2px;">${t.notes}</div>`:'';
+    const modeLabel=t.mode==='real'?'<span style="color:#ef4444;font-weight:700;font-size:10px;">RÉEL</span>':'<span style="color:#64748b;font-size:10px;">BT</span>';
     return `<tr>
-      <td>${t.date}</td><td>${t.time||''}</td><td>${t.mode==='real'?'Réel':'Backtest'}</td>
-      <td>${t.direction||''}</td><td style="color:${rc};font-weight:700;">${t.result}</td>
-      <td>${t.rr?t.rr+'R':''}</td><td>${t.slPips?t.slPips+'p':''}</td>
-      <td>${t.aplus?'⭐':''}${t.golden?'⚡':''}</td>
+      <td style="white-space:nowrap;font-size:11px;">${t.date}</td>
+      <td style="font-size:11px;">${t.time||''}</td>
+      <td>${modeLabel}</td>
+      <td style="font-weight:700;">${t.direction||''}</td>
+      <td style="color:${rc};font-weight:800;">${t.result}</td>
+      <td style="font-weight:700;">${t.rr?t.rr+'R':''}</td>
+      <td style="font-size:10px;">${t.slPips?t.slPips+'$':''}${t.fvgSize?'<br><span style="color:#7c3aed;">OB:'+t.fvgSize+'p</span>':''}</td>
+      <td style="font-size:13px;">${obTypeLabel}${obStatusLabel}${impulseLabel}${ttLabel}</td>
+      <td>${bosLabel}</td>
+      <td>${candleLabel}${noteLabel}</td>
+      <td style="font-size:11px;">${stars}${t.aplus?'<br><span style="color:#7c3aed;font-size:9px;font-weight:700;">A++</span>':''}</td>
     </tr>`;
   }).join('');
 
-  const html = `
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 <title>Rapport ${periodLabel}</title>
 <style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1a202c; max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 22px; margin-bottom: 4px; }
-  .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
-  .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
-  .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-  .value { font-size: 22px; font-weight: 800; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-  th { text-align: left; padding: 8px; border-bottom: 2px solid #1a202c; font-size: 11px; text-transform: uppercase; color: #64748b; }
-  td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
-  .footer { margin-top: 30px; font-size: 11px; color: #94a3b8; text-align: center; }
-  @media print { body { padding: 20px; } }
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;padding:28px;color:#1a202c;max-width:1100px;margin:0 auto;font-size:12px}
+  h1{font-size:22px;margin-bottom:4px}
+  h2{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px}
+  .sub{color:#64748b;font-size:11px;margin-bottom:18px}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+  .card{border:1px solid #e2e8f0;border-radius:7px;padding:9px 12px}
+  .lbl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .val{font-size:20px;font-weight:800}
+  .val-s{font-size:14px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{text-align:left;padding:6px 7px;border-bottom:2px solid #1a202c;font-size:9px;text-transform:uppercase;color:#64748b;white-space:nowrap}
+  td{padding:5px 7px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+  tr:nth-child(even) td{background:#fafafa}
+  .footer{margin-top:20px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:10px}
+  @media print{body{padding:14px}h2{margin-top:14px}}
 </style></head><body>
   <h1>📊 Rapport de trading — ${periodLabel}</h1>
   <div class="sub">Dashboard Gold OB — ${total} trade${total>1?'s':''} (filtre : ${statsFilter==='all'?'tous':statsFilter}) — du ${fromDate} au ${toDate}</div>
-  <div class="grid">
-    <div class="card"><div class="label">Win Rate</div><div class="value" style="color:#0891b2;">${winrate}%</div></div>
-    <div class="card"><div class="label">RR Moyen</div><div class="value" style="color:#2563eb;">${avgRR}${avgRR!=='—'?'R':''}</div></div>
-    <div class="card"><div class="label">Résultat</div><div class="value" style="color:${pnlTotal>=0?'#059669':'#dc2626'};">${withRisk.length>0 ? (pnlTotal>=0?'+':'')+pnlTotal.toFixed(0)+'€' : '—'}</div></div>
-    <div class="card"><div class="label">W / L / BE</div><div class="value" style="font-size:16px;">${wins} / ${losses} / ${be}</div></div>
-  </div>
-  <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
-    <div class="card"><div class="label">Setups A++</div><div class="value" style="color:#7c3aed;font-size:18px;">${aplusCount}</div></div>
 
+  <h2>Statistiques générales</h2>
+  <div class="g4">
+    <div class="card"><div class="lbl">Win Rate</div><div class="val" style="color:#0891b2">${winrate}%</div></div>
+    <div class="card"><div class="lbl">RR Moyen</div><div class="val" style="color:#2563eb">${avgRR}${avgRR!=='—'?'R':''}</div></div>
+    <div class="card"><div class="lbl">Résultat</div><div class="val" style="color:${pnlTotal>=0?'#059669':'#dc2626'};font-size:18px">${withRisk.length>0?(pnlTotal>=0?'+':'')+pnlTotal.toFixed(0)+'€':'—'}</div></div>
+    <div class="card"><div class="lbl">W / L / BE</div><div class="val" style="font-size:15px">${wins} / ${losses} / ${be}</div></div>
   </div>
+  <div class="g4">
+    <div class="card"><div class="lbl">Espérance</div><div class="val-s" style="color:${parseFloat(esperance)>0?'#059669':'#dc2626'}">${esperance}R</div></div>
+    <div class="card"><div class="lbl">Setups A++</div><div class="val-s" style="color:#7c3aed">${aplusCount} / ${total}</div></div>
+    <div class="card"><div class="lbl">SL moyen</div><div class="val-s" style="color:#dc2626">${avgSl}$</div></div>
+    <div class="card"><div class="lbl">OB moyen</div><div class="val-s" style="color:#7c3aed">${avgObSize}p</div></div>
+  </div>
+
+  <h2>Analyse qualité — confluence & filtres</h2>
+  <div class="g2">
+    <div>
+      <table>
+        <thead><tr><th>Critère qualité</th><th>Trades</th><th>Winrate</th></tr></thead>
+        <tbody>${qualRows}</tbody>
+      </table>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th>BOS</th><th>Trades</th><th>Winrate</th></tr></thead>
+        <tbody>
+          <tr><td>✅ Avec BOS</td><td>${withBos.length}</td><td style="font-weight:700;color:${parseInt(calcWR(withBos))>=40?'#059669':'#dc2626'}">${calcWR(withBos)}</td></tr>
+          ${bosBreakdown}
+          <tr><td>❌ Sans BOS</td><td>${withoutBos.length}</td><td style="font-weight:700;color:${parseInt(calcWR(withoutBos))>=40?'#059669':'#dc2626'}">${calcWR(withoutBos)}</td></tr>
+        </tbody>
+      </table>
+      ${scoreGroups?`<table style="margin-top:10px"><thead><tr><th>Score qualité</th><th>Trades</th><th>Winrate</th></tr></thead><tbody>${scoreGroups}</tbody></table>`:''}
+    </div>
+  </div>
+
+  ${patternRows?`<h2>Performance par bougie de confirmation</h2>
+  <table><thead><tr><th>Pattern</th><th>Trades</th><th>Winrate</th><th>Détail</th></tr></thead>
+  <tbody>${patternRows}</tbody></table>`:''}
+
+  <h2>Détail des ${total} trades</h2>
   <table>
-    <thead><tr><th>Date</th><th>Heure</th><th>Mode</th><th>Sens</th><th>Résultat</th><th>RR</th><th>SL</th><th>Tags</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;">Aucun trade sur cette période</td></tr>'}</tbody>
+    <thead><tr><th>Date</th><th>Heure</th><th>Mode</th><th>Sens</th><th>Résultat</th><th>RR</th><th>SL / OB</th><th>Setup</th><th>BOS</th><th>Bougie / Notes</th><th>Score</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="11" style="text-align:center;color:#94a3b8;">Aucun trade</td></tr>'}</tbody>
   </table>
-  <div class="footer">Généré le ${new Date().toLocaleDateString('fr-FR')} — Dashboard Gold OB</div>
+  <div class="footer">Généré le ${new Date().toLocaleDateString('fr-FR')} — Dashboard Gold OB — XAU/USD</div>
 </body></html>`;
 
   const win = window.open('', '_blank');
-  if (!win) {
-    alert('⚠️ Le navigateur a bloqué l\'ouverture de la fenêtre d\'export.\n\nAutorise les pop-ups pour ce site (icône dans la barre d\'adresse) puis réessaie.');
-    return;
-  }
+  if (!win) { alert('⚠️ Pop-ups bloqués — autorise-les pour ce site puis réessaie.'); return; }
   win.document.write(html);
   win.document.close();
   setTimeout(() => win.print(), 300);
