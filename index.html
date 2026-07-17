@@ -3035,29 +3035,40 @@ function toggleStrategyTips() {
 }
 
 function openNoTradeModal() {
-  selectedNoTradeReason = null;
+  selectedNoTradeReason = [];
   document.querySelectorAll('.notrade-reason-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('notrade-note').value = '';
+  const info = document.getElementById('notrade-score-info');
+  if (info) info.style.display = 'none';
   document.getElementById('notrade-overlay').classList.add('visible');
 }
 function closeNoTradeModal() {
   document.getElementById('notrade-overlay').classList.remove('visible');
 }
 function selectNoTradeReason(reason) {
-  selectedNoTradeReason = reason;
+  // Sélection multiple — toggle
+  if (!Array.isArray(selectedNoTradeReason)) selectedNoTradeReason = [];
+  const idx = selectedNoTradeReason.indexOf(reason);
+  if (idx >= 0) {
+    selectedNoTradeReason.splice(idx, 1);
+  } else {
+    selectedNoTradeReason.push(reason);
+  }
   document.querySelectorAll('.notrade-reason-btn').forEach(b => {
-    b.classList.toggle('selected', b.getAttribute('data-r') === reason);
+    b.classList.toggle('selected', selectedNoTradeReason.includes(b.getAttribute('data-r')));
   });
-  // Afficher le rappel score si pertinent
+  // Afficher le rappel score si une raison pertinente est sélectionnée
   const scoreReasons = ['score_insuffisant','pas_de_bos','contre_biais','ob_mitigue'];
   const info = document.getElementById('notrade-score-info');
-  if (info) info.style.display = scoreReasons.includes(reason) ? '' : 'none';
+  if (info) info.style.display = selectedNoTradeReason.some(r => scoreReasons.includes(r)) ? '' : 'none';
 }
 function saveNoTradeDay() {
-  if (!selectedNoTradeReason) { alert('Choisis une raison.'); return; }
+  if (!Array.isArray(selectedNoTradeReason) || selectedNoTradeReason.length === 0) {
+    alert('Choisis au moins une raison.'); return;
+  }
   const today = new Date().toISOString().slice(0,10);
   const note = document.getElementById('notrade-note').value;
-  noTradeDays = noTradeDays.filter(d => d.date !== today); // un seul tag par jour
+  noTradeDays = noTradeDays.filter(d => d.date !== today);
   noTradeDays.push({ date: today, reason: selectedNoTradeReason, note, mode: currentMode });
   localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
   closeNoTradeModal();
@@ -5414,7 +5425,7 @@ function updateTabBadge() {
       <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
       <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
     </div>
-    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison principale</div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison(s) — sélection multiple possible</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⭐ Score insuffisant — setup &lt; 3 étoiles</button>
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_bos" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">📊 Pas de BOS confirmé — sweep sans cassure de structure</button>
