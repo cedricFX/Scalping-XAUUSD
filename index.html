@@ -4268,8 +4268,17 @@ function refreshStats() {
   const avgRR = total > 0 ? (data.reduce((a,t) => a+(parseFloat(t.rr)||0), 0)/total).toFixed(2) : '—';
   const winrate = total > 0 ? ((wins/total)*100).toFixed(1)+'%' : '—';
   document.getElementById('stats-sub').textContent = total > 0 ? `Basé sur ${total} trade${total>1?'s':''} — filtre : ${statsFilter==='all'?'tous':statsFilter}` : 'Aucun trade enregistré pour l\'instant';
-  document.getElementById('stats-filters').style.display = total > 0 ? '' : 'none';
-  if (total === 0) { document.getElementById('stats-content').style.display='none'; document.getElementById('stats-empty').style.display=''; return; }
+
+  // Toujours afficher les filtres si on a des trades (même si le filtre donne 0 résultats)
+  const hasTrades = trades.length > 0;
+  document.getElementById('stats-filters').style.display = hasTrades ? '' : 'none';
+
+  if (total === 0) {
+    document.getElementById('stats-content').style.display = 'none';
+    document.getElementById('stats-empty').style.display = '';
+    document.getElementById('stats-empty').querySelector('.empty-icon') && (document.getElementById('stats-empty').innerHTML = '<div class="empty-icon">🔍</div>Aucun trade ne correspond aux filtres sélectionnés. <br><span style="font-size:12px;color:#475569;">Modifie ou réinitialise les filtres.</span>');
+    return;
+  }
   document.getElementById('stats-content').style.display=''; document.getElementById('stats-empty').style.display='none';
   document.getElementById('s-winrate').textContent = winrate;
   document.getElementById('s-rr').textContent = avgRR!=='—' ? avgRR+'R' : '—';
