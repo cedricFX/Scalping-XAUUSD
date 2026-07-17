@@ -351,7 +351,9 @@
 
       <!-- Switch BT/RÉEL dans le header-top pour ne pas masquer les onglets -->
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;">
-        <div id="daily-counter" style="display:none;font-size:11px;color:#475569;"><span id="daily-count"></span></div>
+        <div id="daily-counter" style="display:none;font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap;">
+          📊 <span style="color:#64748b;">trades aujourd'hui :</span> <span id="daily-count" style="font-weight:800;"></span>
+        </div>
         <div class="mode-toggle" id="mode-toggle">
           <button class="mode-btn active-bt" id="btn-bt" onclick="setMode('backtest')">🔬 BT</button>
           <button class="mode-btn" id="btn-real" onclick="setMode('real')">🔴 RÉEL</button>
@@ -1956,6 +1958,7 @@ function setMode(mode) {
   if (timerState !== 'idle') resetAll(true);
   document.getElementById('btn-bt').className   = 'mode-btn' + (mode === 'backtest' ? ' active-bt'   : '');
   document.getElementById('btn-real').className = 'mode-btn' + (mode === 'real'     ? ' active-real' : '');
+  _lastDailyCount = -1; // force refresh du counter
   const toggle = document.getElementById('mode-toggle');
   toggle.style.borderColor = mode === 'backtest' ? '#8b5cf6' : '#f59e0b';
   setTimeout(() => toggle.style.borderColor = '#1e293b', 800);
@@ -2080,18 +2083,36 @@ function getTodayRealTrades() {
   return trades.filter(t => t.mode === 'real' && t.date === today);
 }
 
+let _lastDailyCount = -1;
 function updateDailyCounter() {
   const counter = document.getElementById('daily-counter');
   const countEl = document.getElementById('daily-count');
-  if (currentMode !== 'real') { counter.style.display = 'none'; return; }
+  if (currentMode !== 'real') {
+    if (counter.style.display !== 'none') counter.style.display = 'none';
+    return;
+  }
   const todayTrades = getTodayRealTrades();
   const n = todayTrades.length;
+
+  // Ne redessine que si le nombre a changé
+  if (n === _lastDailyCount) return;
+  _lastDailyCount = n;
+
   countEl.textContent = n;
-  counter.style.display = 'flex';
-  // Color
-  if (n === 0) { counter.style.border='1px solid rgba(16,185,129,0.3)'; counter.style.background='rgba(16,185,129,0.06)'; countEl.style.color='#10b981'; }
-  else if (n === 1) { counter.style.border='1px solid rgba(245,158,11,0.3)'; counter.style.background='rgba(245,158,11,0.06)'; countEl.style.color='#f59e0b'; }
-  else { counter.style.border='1px solid rgba(244,63,94,0.3)'; counter.style.background='rgba(244,63,94,0.06)'; countEl.style.color='#f43f5e'; }
+  counter.style.display = '';
+  if (n === 0) {
+    counter.style.border = '1px solid rgba(16,185,129,0.3)';
+    counter.style.background = 'rgba(16,185,129,0.06)';
+    countEl.style.color = '#10b981';
+  } else if (n === 1) {
+    counter.style.border = '1px solid rgba(245,158,11,0.3)';
+    counter.style.background = 'rgba(245,158,11,0.06)';
+    countEl.style.color = '#f59e0b';
+  } else {
+    counter.style.border = '1px solid rgba(244,63,94,0.3)';
+    counter.style.background = 'rgba(244,63,94,0.06)';
+    countEl.style.color = '#f43f5e';
+  }
   updateDailyLimitBanner(todayTrades);
 }
 
