@@ -942,6 +942,27 @@
     </div><!-- end .checklist -->
 
     <div id="setup-valid">
+      <!-- SCORE LIVE -->
+      <div id="live-score-block" style="display:none;margin:12px 0;padding:12px 16px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">⭐ Score qualité du setup</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div id="live-score-stars" style="font-size:22px;line-height:1;"></div>
+              <div id="live-score-num" style="font-size:13px;font-weight:700;color:#64748b;"></div>
+            </div>
+            <div id="live-score-label" style="font-size:11px;margin-top:3px;"></div>
+          </div>
+          <div id="live-score-esp" style="text-align:right;">
+            <div style="font-size:10px;color:#64748b;margin-bottom:2px;">Espérance observée</div>
+            <div id="live-score-esp-val" style="font-size:18px;font-weight:800;"></div>
+          </div>
+        </div>
+        <div id="live-score-bar" style="margin-top:8px;height:4px;border-radius:2px;background:#1e293b;overflow:hidden;">
+          <div id="live-score-fill" style="height:100%;border-radius:2px;transition:width 0.3s ease,background 0.3s ease;"></div>
+        </div>
+      </div>
+
       <div>
         <div style="font-size:14px;font-weight:700;color:#06b6d4;" id="setup-valid-title">✅ Setup validé — Order Block confirmé</div>
         <div id="aplus-label">⭐ Setup A++ — OB en zone premium/discount (Fibonacci 0.5)</div>
@@ -1894,12 +1915,14 @@ let currentBos = null; // 'M1' | 'M5' | 'M1+M5'
 
 function setBos(v) {
   currentBos = (currentBos === v) ? null : v; // toggle
+  updateLiveScore();
   document.getElementById('bos-m1').className   = 'toggle-btn' + (currentBos === 'M1'    ? ' active-long' : '');
   document.getElementById('bos-m5').className   = 'toggle-btn' + (currentBos === 'M5'    ? ' active-long' : '');
   document.getElementById('bos-both').className = 'toggle-btn' + (currentBos === 'M1+M5' ? ' active-long' : '');
 }
 function setImpulseQuality(q) {
   currentImpulseQuality = q;
+  updateLiveScore();
   document.getElementById('impulse-strong').className = 'toggle-btn' + (q === 'strong' ? ' active-long' : '');
   document.getElementById('impulse-weak').className   = 'toggle-btn' + (q === 'weak'   ? ' active-short' : '');
   const hint = document.getElementById('impulse-hint');
@@ -1917,12 +1940,14 @@ let currentObType = null;   // 'body' | 'wick'
 
 function setObType(v) {
   currentObType = v;
+  updateLiveScore();
   document.getElementById('ob-type-body').className = 'toggle-btn' + (v==='body'?' active-long':'');
   document.getElementById('ob-type-wick').className = 'toggle-btn' + (v==='wick'?' active-long':'');
 }
 
 function setObStatus(s) {
   currentObStatus = s;
+  updateLiveScore();
   document.getElementById('ob-fresh').className     = 'toggle-btn' + (s === 'fresh'    ? ' active-long' : '');
   document.getElementById('ob-mitigated').className = 'toggle-btn' + (s === 'mitigated' ? ' active-short' : '');
   const hint = document.getElementById('ob-status-hint');
@@ -1936,6 +1961,7 @@ function setObStatus(s) {
 }
 function setTradeType(type) {
   currentTradeType = type;
+  updateLiveScore();
   document.getElementById('type-reversal').className = 'toggle-btn' + (type === 'reversal' ? ' active-long' : '');
   document.getElementById('type-continuation').className = 'toggle-btn' + (type === 'continuation' ? ' active-short' : '');
   const hint = document.getElementById('trade-type-hint');
@@ -2950,6 +2976,7 @@ function toggleAplus(e) {
   if (!checks.fvg) return;
   aplussActive = !aplussActive;
   updateAplus();
+  setTimeout(updateLiveScore, 50);
   checkAllDone();
 }
 
@@ -4866,6 +4893,49 @@ function fcCalc() {
 
 
 // ═══════════════════════════════════
+// ═══════════════════════════════════
+//  SCORE LIVE (checklist temps réel)
+// ═══════════════════════════════════
+const SCORE_ESPERANCE = { 0: null, 1: 0.2, 2: 0.5, 3: 1.25, 4: 1.67, 5: 1.86 };
+const SCORE_LABELS = {
+  0: { text: 'Renseigne les critères pour voir le score', color: '#475569' },
+  1: { text: 'Setup faible — à éviter', color: '#f43f5e' },
+  2: { text: 'Setup moyen — prudence', color: '#f59e0b' },
+  3: { text: 'Bon setup — acceptable', color: '#06b6d4' },
+  4: { text: 'Très bon setup — à prioriser', color: '#10b981' },
+  5: { text: '🔥 Setup parfait — entrée idéale', color: '#10b981' },
+};
+function updateLiveScore() {
+  const fakeTrade = { obStatus: currentObStatus, impulseQuality: currentImpulseQuality, aplus: aplussActive, tradeType: currentTradeType, bos: currentBos, candlePattern: selectedCandlePattern };
+  const score = calcSetupScore(fakeTrade);
+  const block = document.getElementById('live-score-block');
+  if (!block) return;
+  const hasCriteria = currentObStatus || currentImpulseQuality || aplussActive || currentTradeType || currentBos || selectedCandlePattern;
+  if (!hasCriteria) { block.style.display = 'none'; return; }
+  block.style.display = '';
+  const info = SCORE_LABELS[score] || SCORE_LABELS[0];
+  const esp = SCORE_ESPERANCE[score];
+  document.getElementById('live-score-stars').textContent = score > 0 ? '⭐'.repeat(score) : '—';
+  const numEl = document.getElementById('live-score-num');
+  numEl.textContent = `${score} / 5`; numEl.style.color = info.color;
+  const labelEl = document.getElementById('live-score-label');
+  labelEl.textContent = info.text; labelEl.style.color = info.color;
+  const fillEl = document.getElementById('live-score-fill');
+  fillEl.style.width = `${(score/5)*100}%`;
+  fillEl.style.background = score>=4?'#10b981':score>=3?'#06b6d4':score>=2?'#f59e0b':'#f43f5e';
+  const espBlock = document.getElementById('live-score-esp');
+  const espEl = document.getElementById('live-score-esp-val');
+  if (esp !== null) {
+    espBlock.style.display = '';
+    espEl.textContent = (esp>=0?'+':'')+esp+'R';
+    espEl.style.color = esp>=1?'#10b981':esp>=0.5?'#f59e0b':'#f43f5e';
+  } else { espBlock.style.display = 'none'; }
+  if (score>=4) { block.style.borderColor='rgba(16,185,129,0.3)'; block.style.background='rgba(16,185,129,0.04)'; }
+  else if (score>=3) { block.style.borderColor='rgba(6,182,212,0.3)'; block.style.background='rgba(6,182,212,0.04)'; }
+  else if (score>=2) { block.style.borderColor='rgba(245,158,11,0.3)'; block.style.background='rgba(245,158,11,0.04)'; }
+  else { block.style.borderColor='rgba(244,63,94,0.2)'; block.style.background='rgba(244,63,94,0.03)'; }
+}
+
 function renderBtVsReal() {
   const container = document.getElementById('bt-vs-real');
   const empty = document.getElementById('bt-vs-real-empty');
