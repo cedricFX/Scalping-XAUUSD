@@ -398,7 +398,7 @@
 
     <!-- 💡 ASTUCES + PAS DE TRADE -->
     <div style="margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button onclick="openNoTradeModal()" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(100,116,139,0.3);background:rgba(100,116,139,0.06);color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;">
+      <button onclick="event.stopPropagation(); openNoTradeModal();" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(100,116,139,0.3);background:rgba(100,116,139,0.06);color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;">
         📋 Pas de trade aujourd'hui — noter pourquoi
       </button>
       <button onclick="toggleStrategyTips()" id="tips-toggle-btn" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.06);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;">
@@ -1205,55 +1205,7 @@
     <!-- Golden badges (pas de Golden Setup sur Gold, mais requis par les fonctions) -->
     <div id="golden-badge"></div>
     <div id="golden-badge-first"></div>
-    <!-- No-trade modal -->
-    <div id="notrade-overlay" class="overlay">
-      <div class="modal" style="max-width:480px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
-          <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
-        </div>
-
-        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison principale</div>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            ⭐ Score insuffisant — setup &lt; 3 étoiles, pas rentable statistiquement
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_bos" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            📊 Pas de BOS confirmé — sweep sans cassure de structure
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="biais_incertain" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            ↕️ Biais M5 incertain — marché en range, pas de direction claire
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="contre_biais" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            ⚠️ Setup contre le biais M5 — tentation d'aller contre la tendance
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="ob_mitigue" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            ♻️ OB mitigé uniquement — pas d'OB frais disponible
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="limite_losses" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            🛑 Limite de 2 losses atteinte — règle de protection respectée
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_setup" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            🔍 Aucun setup valide — marché sans opportunité ce matin
-          </button>
-          <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="psychologie" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">
-            🧠 Condition mentale — pas dans le bon état d'esprit pour trader
-          </button>
-        </div>
-
-        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Note (optionnel)</div>
-        <textarea id="notrade-note" class="input" placeholder="Décris ce que tu as vu, pourquoi tu as décidé de ne pas entrer…" style="height:80px;font-size:12px;resize:vertical;"></textarea>
-
-        <div id="notrade-score-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:11px;color:#f59e0b;">
-          💡 Rappel : les trades à ≥ 4⭐ ont une espérance de +1.67R contre +0.94R tous trades confondus.
-        </div>
-
-        <div style="display:flex;gap:8px;margin-top:14px;">
-          <button onclick="closeNoTradeModal()" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:12px;cursor:pointer;">Annuler</button>
-          <button onclick="saveNoTradeDay()" style="flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">✅ Enregistrer</button>
-        </div>
-      </div>
-    </div>
+    <!-- No-trade modal moved to end of body -->
     <!-- Risk % buttons (anciens IDs requis par setRisk/setRiskCustom) -->
     <button id="risk-1" onclick="setRisk(1)"></button>
     <button id="risk-15" onclick="setRisk(1.5)"></button>
@@ -5454,3 +5406,32 @@ function updateTabBadge() {
 .fc-risk-btn.active, .fc-sl-btn.active { background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.5);color:#10b981; }
 #float-calc-btn:hover { transform:scale(1.1); }
 </style>
+<!-- ═══ MODAL PAS DE TRADE ═══ -->
+<div id="notrade-overlay" class="overlay">
+  <div class="modal" style="max-width:480px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
+      <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison principale</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⭐ Score insuffisant — setup &lt; 3 étoiles</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_bos" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">📊 Pas de BOS confirmé — sweep sans cassure de structure</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="biais_incertain" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">↕️ Biais M5 incertain — marché en range</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="contre_biais" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⚠️ Setup contre le biais M5</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="ob_mitigue" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">♻️ OB mitigé uniquement — pas d'OB frais</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="limite_losses" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🛑 Limite de 2 losses atteinte</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_setup" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🔍 Aucun setup valide ce matin</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="psychologie" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🧠 Condition mentale — pas dans le bon état d'esprit</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Note (optionnel)</div>
+    <textarea id="notrade-note" class="input" placeholder="Décris ce que tu as vu, pourquoi tu as décidé de ne pas entrer…" style="height:80px;font-size:12px;resize:vertical;"></textarea>
+    <div id="notrade-score-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:11px;color:#f59e0b;">
+      💡 Rappel : les trades à ≥ 4⭐ ont une espérance de +1.67R contre +0.94R tous trades confondus.
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button onclick="closeNoTradeModal()" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:12px;cursor:pointer;">Annuler</button>
+      <button onclick="saveNoTradeDay()" style="flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
