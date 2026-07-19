@@ -1755,7 +1755,7 @@
 // ═══════════════════════════════════
 // ⬇️ REMPLACE CETTE URL par l'URL de ton déploiement Apps Script dédié Gold
 // (crée un nouveau Sheet + nouveau déploiement Apps Script — voir apps-script-code.gs)
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwqMuN4TcJzGEtGWE86JZf4W7gRHCDxjA_vhIUXPfEpu54UpYrCR4F4vMYwHPMZw0oN/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzexmJAP1wZhtq9MPTPrCGUjFGa-tB87fbOfML-TH1Y9FSVwh854aEcYCy8wpv4qFg/exec';
 
 let syncStatus = 'idle'; // idle | syncing | ok | error
 
@@ -5039,16 +5039,19 @@ async function fetchNoTradeDaysFromSheet() {
   if (!SHEET_URL) return;
   try {
     const r = await fetch(SHEET_URL + '?action=getNoTrade');
+    if (!r.ok) return; // ignore silently if action not found yet
     const data = await r.json();
-    if (data.days && data.days.length > 0) {
-      // Merge : priorité aux données Sheet, on garde les locales si date absente du Sheet
+    if (data && data.days && data.days.length > 0) {
       const sheetDates = new Set(data.days.map(d => d.date));
       const localOnly = noTradeDays.filter(d => !sheetDates.has(d.date));
       noTradeDays = [...data.days, ...localOnly].sort((a,b) => b.date.localeCompare(a.date));
       localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
       renderNoTradeDays_wrap();
     }
-  } catch(e) { console.warn('fetchNoTradeDaysFromSheet:', e); }
+  } catch(e) {
+    // Erreur réseau silencieuse — ne bloque pas le reste de l'app
+    console.warn('fetchNoTradeDaysFromSheet (non bloquant):', e.message);
+  }
 }
 
 function renderNoTradeDays_wrap() { try { renderNoTradeDays(); } catch(e) { console.error('renderNoTradeDays:', e); } }
