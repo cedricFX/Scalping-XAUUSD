@@ -1975,10 +1975,19 @@ function setTradeType(type) {
   document.getElementById('type-continuation').className = 'toggle-btn' + (type === 'continuation' ? ' active-short' : '');
   const hint = document.getElementById('trade-type-hint');
   if (type === 'reversal') {
-    hint.textContent = '🔄 Retournement — le prix casse un niveau clé et revient dessus. OB formé contre la tendance précédente. Plus risqué mais RR élevé.';
-    hint.style.color = '#06b6d4';
+    // Check if we're in the first 20 minutes of the hour
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const inWindow = minutes < 20;
+    if (inWindow) {
+      hint.innerHTML = '🔄 Retournement — le prix casse un niveau clé et revient dessus.<br><span style="color:#10b981;font-weight:700;">✅ ' + String(minutes).padStart(2,'0') + 'min — dans la fenêtre des 20 premières minutes · timing favorable</span>';
+      hint.style.color = '#06b6d4';
+    } else {
+      hint.innerHTML = '🔄 Retournement — le prix casse un niveau clé et revient dessus.<br><span style="color:#f59e0b;font-weight:700;">⚠️ ' + String(minutes).padStart(2,'0') + 'min — hors fenêtre des 20 premières minutes · retournement moins probable</span>';
+      hint.style.color = '#06b6d4';
+    }
   } else {
-    hint.textContent = '➡️ Continuation — pullback dans la tendance principale. OB formé dans le sens du marché. Plus probable, intégré dans un mouvement plus large.';
+    hint.innerHTML = '➡️ Continuation — pullback dans la tendance principale. OB formé dans le sens du marché. Plus probable, intégré dans un mouvement plus large.';
     hint.style.color = '#a78bfa';
   }
 }
