@@ -3053,20 +3053,17 @@ function openNoTradeModal() {
   document.getElementById('notrade-note').value = '';
   document.getElementById('notrade-screenshot').value = '';
   document.getElementById('notrade-screenshot-preview').style.display = 'none';
+  // Pré-remplir avec la date du jour
+  document.getElementById('notrade-date').value = new Date().toISOString().slice(0,10);
   const info = document.getElementById('notrade-score-info');
   if (info) info.style.display = 'none';
   document.getElementById('notrade-overlay').classList.add('visible');
-  // Live preview du screenshot
   document.getElementById('notrade-screenshot').oninput = function() {
     const val = this.value.trim();
     const preview = document.getElementById('notrade-screenshot-preview');
     const link = document.getElementById('notrade-screenshot-link');
-    if (val.startsWith('http')) {
-      preview.style.display = '';
-      link.href = val;
-    } else {
-      preview.style.display = 'none';
-    }
+    if (val.startsWith('http')) { preview.style.display = ''; link.href = val; }
+    else { preview.style.display = 'none'; }
   };
 }
 function closeNoTradeModal() {
@@ -3093,13 +3090,15 @@ function saveNoTradeDay() {
   if (!Array.isArray(selectedNoTradeReason) || selectedNoTradeReason.length === 0) {
     alert('Choisis au moins une raison.'); return;
   }
-  const today = new Date().toISOString().slice(0,10);
+  const dateEl = document.getElementById('notrade-date');
+  const selectedDate = dateEl && dateEl.value ? dateEl.value : new Date().toISOString().slice(0,10);
   const note = document.getElementById('notrade-note').value;
   const screenshot = document.getElementById('notrade-screenshot').value.trim();
-  noTradeDays = noTradeDays.filter(d => d.date !== today);
-  noTradeDays.push({ date: today, reason: selectedNoTradeReason, note, screenshot: screenshot || null, mode: currentMode });
+  noTradeDays = noTradeDays.filter(d => d.date !== selectedDate);
+  noTradeDays.push({ date: selectedDate, reason: selectedNoTradeReason, note, screenshot: screenshot || null, mode: currentMode });
   localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
   pushNoTradeDaysToSheet();
+  renderNoTradeDays_wrap();
   closeNoTradeModal();
 }
 
@@ -5532,6 +5531,8 @@ function updateTabBadge() {
       <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
       <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
     </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Date</div>
+    <input type="date" id="notrade-date" class="input" style="font-size:12px;height:36px;margin-bottom:12px;" />
     <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison(s) — sélection multiple possible</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⭐ Score insuffisant — setup &lt; 3 étoiles</button>
@@ -5544,15 +5545,12 @@ function updateTabBadge() {
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="psychologie" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🧠 Condition mentale — pas dans le bon état d'esprit</button>
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_retest" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🎯 Pas de retest de l'OB — setup valide mais prix n'est pas revenu</button>
     </div>
-    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;margin-top:12px;">Screenshot (optionnel)</div>
-    <input type="url" id="notrade-screenshot" class="input" placeholder="https://www.tradingview.com/x/..." style="font-size:12px;height:36px;" />
-    <div id="notrade-screenshot-preview" style="display:none;margin-top:6px;">
-      <a id="notrade-screenshot-link" href="#" target="_blank" style="font-size:11px;color:#06b6d4;display:flex;align-items:center;gap:6px;">
-        📸 Voir le screenshot ↗
-      </a>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Screenshot (optionnel)</div>
+    <input type="url" id="notrade-screenshot" class="input" placeholder="https://www.tradingview.com/x/..." style="font-size:12px;height:36px;margin-bottom:8px;" />
+    <div id="notrade-screenshot-preview" style="display:none;margin-bottom:8px;">
+      <a id="notrade-screenshot-link" href="#" target="_blank" style="font-size:11px;color:#06b6d4;">📸 Voir le screenshot ↗</a>
     </div>
-
-    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;margin-top:12px;">Note (optionnel)</div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Note (optionnel)</div>
     <textarea id="notrade-note" class="input" placeholder="Décris ce que tu as vu, pourquoi tu as décidé de ne pas entrer…" style="height:80px;font-size:12px;resize:vertical;"></textarea>
     <div id="notrade-score-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:11px;color:#f59e0b;">
       💡 Rappel : les trades à ≥ 4⭐ ont une espérance de +1.67R contre +0.94R tous trades confondus.
