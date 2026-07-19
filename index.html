@@ -279,8 +279,8 @@
     .emo-btn.selected-warn { border-color:#f59e0b; background:rgba(245,158,11,0.15); color:#f59e0b; }
 
     /* CONFIRM DIALOG */
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:100; align-items:center; justify-content:center; }
-    .overlay.visible { display:flex; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; }
+    .overlay.visible { display:flex !important; }
     .modal { background:#0f172a; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:24px; width:90%; box-shadow:0 25px 60px rgba(0,0,0,0.8); }
     .dialog { background:#0d1529; border:1px solid rgba(244,63,94,0.3); border-radius:14px; padding:28px; max-width:360px; width:90%; text-align:center; }
     .dialog-title { font-size:16px; font-weight:700; color:#f1f5f9; margin-bottom:8px; }
@@ -3053,7 +3053,10 @@ function openNoTradeModal() {
   if (previewEl) previewEl.style.display = 'none';
   if (dateEl) dateEl.value = new Date().toISOString().slice(0,10);
   if (infoEl) infoEl.style.display = 'none';
-  if (overlayEl) overlayEl.classList.add('visible');
+  if (overlayEl) {
+    overlayEl.classList.add('visible');
+    overlayEl.style.display = 'flex';
+  }
   if (screenshotEl) screenshotEl.oninput = function() {
     const val = this.value.trim();
     const preview = document.getElementById('notrade-screenshot-preview');
@@ -3063,7 +3066,8 @@ function openNoTradeModal() {
   };
 }
 function closeNoTradeModal() {
-  document.getElementById('notrade-overlay').classList.remove('visible');
+  const el = document.getElementById('notrade-overlay');
+  if (el) { el.classList.remove('visible'); el.style.display = 'none'; }
 }
 function selectNoTradeReason(reason) {
   // Sélection multiple — toggle
