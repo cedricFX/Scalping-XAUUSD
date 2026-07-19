@@ -1735,6 +1735,18 @@
 
     <div class="trade-list" id="trade-list"></div>
     <div class="empty" id="journal-empty"><div class="empty-icon">📓</div>Ton journal est vide — commence à trader !</div>
+
+    <!-- ═══ JOURS SANS TRADE ═══ -->
+    <div id="notrade-section" style="display:none;margin-top:28px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#e2e8f0;">📋 Jours sans trade</div>
+          <div style="font-size:11px;color:#475569;margin-top:2px;">Setups refusés ou non déclenchés</div>
+        </div>
+        <span id="notrade-count" style="font-size:11px;color:#475569;"></span>
+      </div>
+      <div id="notrade-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+    </div>
   </div>
 
 <script>
@@ -4965,6 +4977,54 @@ function updateLiveScore() {
   else { block.style.borderColor='rgba(244,63,94,0.2)'; block.style.background='rgba(244,63,94,0.03)'; }
 }
 
+function renderNoTradeDays() {
+  const section = document.getElementById('notrade-section');
+  const list = document.getElementById('notrade-list');
+  const countEl = document.getElementById('notrade-count');
+  if (!noTradeDays || noTradeDays.length === 0) { section.style.display = 'none'; return; }
+
+  const sorted = [...noTradeDays].sort((a,b) => b.date.localeCompare(a.date));
+  section.style.display = '';
+  countEl.textContent = `${sorted.length} jour${sorted.length>1?'s':''}`;
+
+  const reasonLabels = {
+    score_insuffisant: '⭐ Score insuffisant',
+    pas_de_bos: '📊 Pas de BOS',
+    biais_incertain: '↕️ Biais incertain',
+    contre_biais: '⚠️ Contre biais M5',
+    ob_mitigue: '♻️ OB mitigé',
+    limite_losses: '🛑 Limite losses',
+    pas_de_setup: '🔍 Aucun setup',
+    psychologie: '🧠 Mental',
+    pas_de_retest: '🎯 Pas de retest',
+  };
+
+  list.innerHTML = sorted.map(d => {
+    const reasons = Array.isArray(d.reason) ? d.reason : [d.reason];
+    const tags = reasons.map(r => `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;margin-right:4px;margin-bottom:4px;display:inline-block;">${reasonLabels[r]||r}</span>`).join('');
+    const modeTag = d.mode==='real'
+      ? '<span style="font-size:9px;font-weight:700;color:#ef4444;margin-right:6px;">RÉEL</span>'
+      : '<span style="font-size:9px;color:#475569;margin-right:6px;">BT</span>';
+    const screenshotLink = d.screenshot
+      ? `<a href="${d.screenshot}" target="_blank" style="font-size:10px;color:#06b6d4;display:inline-flex;align-items:center;gap:3px;margin-top:6px;text-decoration:none;">📸 Screenshot ↗</a>`
+      : '';
+    const noteHtml = d.note
+      ? `<div style="font-size:11px;color:#64748b;margin-top:6px;font-style:italic;">${d.note}</div>`
+      : '';
+    return `<div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.15);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${d.date}</span>
+        ${modeTag}
+      </div>
+      <div style="flex-wrap:wrap;">${tags}</div>
+      ${noteHtml}
+      ${screenshotLink}
+    </div>`;
+  }).join('');
+}
+
+function renderNoTradeDays_wrap() { try { renderNoTradeDays(); } catch(e) { console.error('renderNoTradeDays:', e); } }
+
 function renderBtVsReal() {
   const container = document.getElementById('bt-vs-real');
   const empty = document.getElementById('bt-vs-real-empty');
@@ -5334,6 +5394,7 @@ function refreshJournalInner() {
         <button class="delete-btn" style="padding:4px 8px;font-size:11px;" onclick="askDelete(${t.id})">🗑️</button>
       </div>
     </div>`).join('');
+  renderNoTradeDays_wrap();
 }
 function askDelete(id) {
   pendingDeleteId = id;
