@@ -4820,8 +4820,7 @@ function exportReport(fromDate, toDate, periodLabel) {
   tr:nth-child(even) td{background:#fafafa}
   .footer{margin-top:20px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:10px}
   @media print{body{padding:14px}h2{margin-top:14px}}
-</style></head><body>
-  <h1>📊 Rapport de trading — ${periodLabel}</h1>
+</style></head>\x3Cbody>\n  <h1>📊 Rapport de trading — ${periodLabel}</h1>
   <div class="sub">Dashboard Gold OB — ${total} trade${total>1?'s':''} (filtre : ${statsFilter==='all'?'tous':statsFilter}) — du ${fromDate} au ${toDate}</div>
 
   <h2>Statistiques générales</h2>
@@ -4907,7 +4906,7 @@ function exportReport(fromDate, toDate, periodLabel) {
     </div>
   </div>
 </div>
-</body></html>`;
+<\/body><\/html>`;
 
   const win = window.open('', '_blank');
   if (!win) { alert('⚠️ Pop-ups bloqués — autorise-les pour ce site puis réessaie.'); return; }
