@@ -1881,23 +1881,27 @@ window.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   document.getElementById('f-date').value = now.toISOString().slice(0,10);
   document.getElementById('f-time').value = now.toTimeString().slice(0,5);
-  // Init backtest date (starts in backtest mode)
+  // Initialiser la date backtest
   const todayStr = now.toISOString().slice(0,10);
-  document.getElementById('bt-date').value = todayStr;
-  document.getElementById('bt-date-checklist').value = todayStr;
-  document.getElementById('bt-date-wrap').style.display = '';
-  document.getElementById('bt-date-wrap-checklist').style.display = 'flex';
-  document.getElementById('bt-note').style.display = '';
-  ;
+  const btDateEl = document.getElementById('bt-date');
+  if (btDateEl) btDateEl.value = todayStr;
+  const btDateClEl = document.getElementById('bt-date-checklist');
+  if (btDateClEl) btDateClEl.value = todayStr;
+  const btWrap = document.getElementById('bt-date-wrap');
+  if (btWrap) btWrap.style.display = '';
+  const btWrapCl = document.getElementById('bt-date-wrap-checklist');
+  if (btWrapCl) btWrapCl.style.display = 'flex';
+  const btNote = document.getElementById('bt-note');
+  if (btNote) btNote.style.display = '';
   startClock();
   showTab('checklist');
   refreshStats();
   refreshJournal();
   updateTabBadge();
-  fetchTradesFromSheet(); // sync depuis Google Sheet au chargement
+  fetchTradesFromSheet();
   checkDailyLossLimit();
-  fetchNoTradeDaysFromSheet(); // sync jours sans trade
-  if (new Date().getDay() === 1) showWeeklyBilan(); // Lundi = affiche le bilan de la semaine passée
+  fetchNoTradeDaysFromSheet();
+  if (now.getDay() === 1) showWeeklyBilan();
 });
 
 // ═══════════════════════════════════
@@ -3020,7 +3024,10 @@ function updatePositionTab() {
 // ═══════════════════════════════════
 //  INIT
 // ═══════════════════════════════════
-// DOMContentLoaded (duplicate removed)
+
+// Init au chargement
+
+
 
 // ═══════════════════════════════════
 //  NO TRADE TODAY (journées sans trade)
