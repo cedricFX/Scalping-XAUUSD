@@ -130,7 +130,7 @@
     #timer-display { font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
     .timer-sub { font-size:10px; color:#475569; }
 
-    /* OB APLUS PANEL */
+    /* FVG APLUS PANEL */
     .fvg-panel { padding:0 24px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     .aplus-check { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; border:1px solid rgba(168,85,247,0.25); background:rgba(168,85,247,0.06); cursor:pointer; user-select:none; transition:all 0.2s; flex:1; min-width:200px; }
     .aplus-check:hover { border-color:rgba(168,85,247,0.5); }
@@ -231,10 +231,10 @@
     .sl-pip-btn.active { border-color:#f43f5e; background:rgba(244,63,94,0.12); color:#f43f5e; }
 
     /* CALENDAR */
-    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
-    .cal-weekdays div { font-size:10px; font-weight:600; color:#475569; text-align:center; text-transform:uppercase; letter-spacing:0.05em; padding:2px 0; }
+    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+    .cal-weekdays div { font-size:10px; font-weight:600; color:#475569; text-align:center; text-transform:uppercase; letter-spacing:0.05em; padding:4px 0; }
     .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:48px; gap:2px; }
-    .cal-day { height:48px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; border:1px solid transparent; position:relative; }
+    .cal-day { height:48px; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; border:1px solid transparent; position:relative; }
     .cal-day:hover { border-color:rgba(255,255,255,0.15); }
     .cal-day.empty { cursor:default; }
     .cal-day.today { border-color:rgba(6,182,212,0.5); }
@@ -349,12 +349,9 @@
         <span style="font-size:10px;color:#64748b;">restant</span>
       </div>
       <div id="expired-badge">⛔ Scénario invalidé</div>
-
       <!-- Switch BT/RÉEL dans le header-top pour ne pas masquer les onglets -->
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;">
-        <div id="daily-counter" style="display:none;font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap;">
-          📊 <span style="color:#64748b;">trades aujourd'hui :</span> <span id="daily-count" style="font-weight:800;"></span>
-        </div>
+        <div id="daily-counter" style="display:none;font-size:11px;color:#475569;"><span id="daily-count"></span></div>
         <div class="mode-toggle" id="mode-toggle">
           <button class="mode-btn active-bt" id="btn-bt" onclick="setMode('backtest')">🔬 BT</button>
           <button class="mode-btn" id="btn-real" onclick="setMode('real')">🔴 RÉEL</button>
@@ -399,7 +396,7 @@
 
     <!-- 💡 ASTUCES + PAS DE TRADE -->
     <div style="margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button onclick="event.stopPropagation(); openNoTradeModal();" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(100,116,139,0.3);background:rgba(100,116,139,0.06);color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;">
+      <button onclick="openNoTradeModal()" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(100,116,139,0.3);background:rgba(100,116,139,0.06);color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;">
         📋 Pas de trade aujourd'hui — noter pourquoi
       </button>
       <button onclick="toggleStrategyTips()" id="tips-toggle-btn" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.06);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;">
@@ -487,7 +484,6 @@
             <button class="toggle-btn" id="impulse-weak" onclick="setImpulseQuality('weak');event.stopPropagation()" title="Petite bougie ou avec mèches importantes — OB moins fiable, vigilance accrue">⚠️ Faible</button>
           </div>
           <div id="impulse-hint" style="font-size:10px;color:#475569;margin-top:5px;line-height:1.5;"></div>
-
           <!-- BOS CONFLUENCE -->
           <div class="field-label" style="margin-top:12px;">BOS confirmé <span style="color:#475569;font-weight:400;text-transform:none;">(confluence · facultatif · +1⭐)</span></div>
           <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
@@ -598,13 +594,13 @@
               <button class="toggle-btn" id="ob-fresh" onclick="setObStatus('fresh');event.stopPropagation()" title="OB vierge — premier test. Signal le plus fort.">✨ Frais</button>
               <button class="toggle-btn" id="ob-mitigated" onclick="setObStatus('mitigated');event.stopPropagation()" title="OB déjà testé une fois — encore valide mais moins puissant.">♻️ Mitigé</button>
             </div>
-            <div id="ob-status-hint" style="font-size:10px;margin-top:6px;line-height:1.5;color:#475569;"></div>
 
-            <div class="field-label" style="margin-bottom:8px;margin-top:12px;">Type d'OB</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="field-label" style="margin-top:12px;">Type d'OB</div>
+            <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
               <button class="toggle-btn" id="ob-type-body" onclick="setObType('body');event.stopPropagation()" title="OB classique — corps de la bougie">📦 Corps (classique)</button>
               <button class="toggle-btn" id="ob-type-wick" onclick="setObType('wick');event.stopPropagation()" title="Rejection Block — mèche longue qui sweepé la liquidité">🕯️ Wick (Rejection Block)</button>
             </div>
+            <div id="ob-status-hint" style="font-size:10px;margin-top:6px;line-height:1.5;color:#475569;"></div>
           </div>
 
           <div class="fvg-panel" id="fvg-aplus-panel" style="display:none;">
@@ -963,7 +959,6 @@
           <div id="live-score-fill" style="height:100%;border-radius:2px;transition:width 0.3s ease,background 0.3s ease;"></div>
         </div>
       </div>
-
       <div>
         <div style="font-size:14px;font-weight:700;color:#06b6d4;" id="setup-valid-title">✅ Setup validé — Order Block confirmé</div>
         <div id="aplus-label">⭐ Setup A++ — OB en zone premium/discount (Fibonacci 0.5)</div>
@@ -1173,6 +1168,7 @@
     </div>
   </div>
 
+
   <!-- ÉLÉMENTS CACHÉS — requis par le moteur JS (timer, reset, bt-date...) -->
   <div style="display:none;">
     <!-- Timer / Reset (moteur de session, masqué sur Gold car pas de sweeper) -->
@@ -1188,9 +1184,6 @@
     <div id="expired-badge">⛔ Scénario invalidé</div>
     <!-- row-* IDs requis par lockItem/updateCheckUI -->
     <div id="row-second"></div>
-    <div id="s-fvg-size" style="display:none;"></div>
-    <div id="s-duration" style="display:none;"></div>
-    <div id="streak-warning" style="display:none;"></div>
     <div id="row-fvg"></div>
     <div id="row-ifvg"></div>
     <!-- Backtest date (nécessaire pour calcul de fenêtre) -->
@@ -1206,7 +1199,9 @@
     <!-- Golden badges (pas de Golden Setup sur Gold, mais requis par les fonctions) -->
     <div id="golden-badge"></div>
     <div id="golden-badge-first"></div>
-    <!-- No-trade modal moved to end of body -->
+    <!-- No-trade modal -->
+    <textarea id="notrade-note"></textarea>
+    <div id="notrade-overlay" class="overlay"></div>
     <!-- Risk % buttons (anciens IDs requis par setRisk/setRiskCustom) -->
     <button id="risk-1" onclick="setRisk(1)"></button>
     <button id="risk-15" onclick="setRisk(1.5)"></button>
@@ -1295,7 +1290,7 @@
             <button class="sl-pip-btn" onclick="setSlPips(50)">50p</button>
             <button class="sl-pip-btn" onclick="setSlPips(80)">80p</button>
           </div>
-          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="0.1" max="500" step="0.1" placeholder="pips" oninput="onSlPipsInput()" />
+          <input type="number" id="f-sl-pips" class="input" style="width:90px;" min="1" max="500" step="1" placeholder="pips" oninput="onSlPipsInput()" />
           <div id="sl-pips-display" style="font-size:12px;color:#475569;"></div>
         </div>
       </div>
@@ -1427,229 +1422,219 @@
 
     <div id="stats-content" style="display:none;">
 
-      <!-- ═══ ESPÉRANCE MATHÉMATIQUE (hero card) ═══ -->
-      <div id="esperance-block" style="margin-bottom:16px;padding:16px 20px;border-radius:14px;background:linear-gradient(135deg,rgba(6,182,212,0.08) 0%,rgba(99,102,241,0.06) 100%);border:1.5px solid rgba(6,182,212,0.25);">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <!-- ═══ ESPÉRANCE MATHÉMATIQUE ═══ -->
+      <div id="esperance-block" style="margin-bottom:20px;padding:20px 24px;border-radius:14px;background:linear-gradient(135deg,rgba(6,182,212,0.08) 0%,rgba(99,102,241,0.06) 100%);border:1.5px solid rgba(6,182,212,0.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div>
-            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">📐 Espérance Mathématique</div>
-            <div style="display:flex;align-items:baseline;gap:6px;">
-              <div style="font-size:40px;font-weight:900;line-height:1;" id="s-esperance">—</div>
-              <div style="font-size:13px;color:#64748b;font-weight:600;" id="s-esperance-unit">R/trade</div>
+            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">📐 Espérance Mathématique</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div style="font-size:48px;font-weight:900;line-height:1;" id="s-esperance">—</div>
+              <div style="font-size:14px;color:#64748b;font-weight:600;" id="s-esperance-unit">R/trade</div>
             </div>
-            <div style="font-size:11px;color:#475569;margin-top:4px;" id="s-esperance-desc">En attente de données</div>
+            <div style="font-size:12px;color:#475569;margin-top:6px;" id="s-esperance-desc">En attente de données</div>
           </div>
-          <div style="text-align:right;font-size:11px;color:#64748b;display:flex;flex-direction:column;gap:2px;">
-            <div>Winrate : <span id="s-esp-wr" style="color:#e2e8f0;font-weight:700;">—</span></div>
-            <div>RR moyen : <span id="s-esp-rr" style="color:#e2e8f0;font-weight:700;">—</span></div>
-            <div>Proj. 100 trades : <span id="s-esp-proj" style="font-weight:700;">—</span></div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:#475569;margin-bottom:8px;">Formule : (Winrate × RR moyen) − (1 − Winrate)</div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+              <div style="font-size:11px;color:#64748b;">Winrate : <span id="s-esp-wr" style="color:#e2e8f0;font-weight:700;">—</span></div>
+              <div style="font-size:11px;color:#64748b;">RR moyen : <span id="s-esp-rr" style="color:#e2e8f0;font-weight:700;">—</span></div>
+              <div style="font-size:11px;color:#64748b;">Proj. 100 trades : <span id="s-esp-proj" style="font-weight:700;">—</span></div>
+            </div>
           </div>
         </div>
-        <div id="s-esperance-bar" style="margin-top:10px;height:5px;border-radius:3px;background:#1e293b;overflow:hidden;">
+        <div id="s-esperance-bar" style="margin-top:14px;height:6px;border-radius:3px;background:#1e293b;overflow:hidden;">
           <div id="s-esperance-fill" style="height:100%;border-radius:3px;transition:width 0.5s ease;"></div>
         </div>
-        <div style="font-size:10px;color:#334155;margin-top:4px;" id="s-esperance-hint"></div>
+        <div style="font-size:10px;color:#334155;margin-top:6px;" id="s-esperance-hint"></div>
+      </div>
+      <div class="stat-grid-3">
+        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" id="s-winrate" style="color:#06b6d4;">—</div></div>
+        <div class="stat-card"><div class="stat-label">RR Moyen</div><div class="stat-value" id="s-rr" style="color:#3b82f6;">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Trades</div><div class="stat-value" id="s-total" style="color:#8b5cf6;">0</div></div>
+      </div>
+      <div class="stat-grid-3">
+        <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value" id="s-wins" style="color:#10b981;">0</div></div>
+        <div class="stat-card"><div class="stat-label">Losses</div><div class="stat-value" id="s-losses" style="color:#f43f5e;">0</div></div>
+        <div class="stat-card"><div class="stat-label">Break Even</div><div class="stat-value" id="s-be" style="color:#f59e0b;">0</div></div>
+      </div>
+      <div class="stat-grid-2" style="margin-bottom:14px;">
+        <div class="stat-card"><div class="stat-label">LONG</div><div class="stat-value" id="s-long" style="color:#10b981;">0</div></div>
+        <div class="stat-card"><div class="stat-label">SHORT</div><div class="stat-value" id="s-short" style="color:#f43f5e;">0</div></div>
+      </div>
+      <div class="aplus-stat">
+        <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Setup A++</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">OB en zone premium/discount (Fibo 0.5)</div></div>
+        <div style="font-size:28px;font-weight:800;color:#8b5cf6;" id="s-aplus">0</div>
       </div>
 
-      <!-- ═══ GRILLE KPIs PRINCIPAUX ═══ -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat-card" style="padding:12px 14px;">
-          <div class="stat-label">Win Rate</div>
-          <div class="stat-value" id="s-winrate" style="color:#06b6d4;font-size:24px;">—</div>
-        </div>
-        <div class="stat-card" style="padding:12px 14px;">
-          <div class="stat-label">RR Moyen</div>
-          <div class="stat-value" id="s-rr" style="color:#3b82f6;font-size:24px;">—</div>
-        </div>
-        <div class="stat-card" style="padding:12px 14px;">
-          <div class="stat-label">Trades</div>
-          <div class="stat-value" id="s-total" style="color:#8b5cf6;font-size:24px;">0</div>
-        </div>
-        <div class="stat-card" style="padding:12px 14px;">
-          <div class="stat-label">Setup A++</div>
-          <div class="stat-value" id="s-aplus" style="color:#a78bfa;font-size:24px;">0</div>
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
+        <div class="stat-card"><div class="stat-label">SL moyen</div><div class="stat-value" id="s-sl-pips" style="color:#f43f5e;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">$</div></div>
+        <div class="stat-card"><div class="stat-label">OB moyen</div><div class="stat-value" id="s-fvg-size" style="color:#a78bfa;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">pips</div></div>
+        <div class="stat-card"><div class="stat-label">Durée moyenne</div><div class="stat-value" id="s-duration" style="color:#06b6d4;">—</div><div style="font-size:11px;color:#475569;margin-top:4px;">par trade</div></div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;">
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">Wins</div>
-          <div style="font-size:20px;font-weight:800;color:#10b981;" id="s-wins">0</div>
-        </div>
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">Losses</div>
-          <div style="font-size:20px;font-weight:800;color:#f43f5e;" id="s-losses">0</div>
-        </div>
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">BE</div>
-          <div style="font-size:20px;font-weight:800;color:#f59e0b;" id="s-be">0</div>
-        </div>
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">Long</div>
-          <div style="font-size:20px;font-weight:800;color:#10b981;" id="s-long">0</div>
-        </div>
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">Short</div>
-          <div style="font-size:20px;font-weight:800;color:#f43f5e;" id="s-short">0</div>
-        </div>
-        <div class="stat-card" style="padding:10px 12px;text-align:center;">
-          <div class="stat-label" style="font-size:9px;">SL moy.</div>
-          <div style="font-size:18px;font-weight:800;color:#f43f5e;" id="s-sl-pips">—</div>
-          <div style="font-size:9px;color:#475569;">$</div>
-        </div>
+      <div class="chart-box">
+        <div class="chart-title">Répartition des résultats</div>
+        <div class="bar-row"><div class="bar-header"><span style="font-size:12px;color:#94a3b8;">WIN</span><span style="font-size:12px;font-weight:700;color:#10b981;" id="b-wins">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-wins" style="width:0%;background:#10b981;"></div></div></div>
+        <div class="bar-row"><div class="bar-header"><span style="font-size:12px;color:#94a3b8;">LOSS</span><span style="font-size:12px;font-weight:700;color:#f43f5e;" id="b-losses">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-losses" style="width:0%;background:#f43f5e;"></div></div></div>
+        <div class="bar-row"><div class="bar-header"><span style="font-size:12px;color:#94a3b8;">BE</span><span style="font-size:12px;font-weight:700;color:#f59e0b;" id="b-be">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-be" style="width:0%;background:#f59e0b;"></div></div></div>
       </div>
 
-      <!-- ═══ Performance € + Résultats & Série ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">💶 Performance estimée</div>
+      <!-- ESTIMATION PERFORMANCE EN € -->
+      <div class="chart-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div class="chart-title" style="margin-bottom:0;">💶 Performance estimée</div>
+          <div style="font-size:11px;color:#475569;">Basé sur le risque € saisi à chaque trade</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="stat-card">
+            <div class="stat-label">Résultat cumulé</div>
+            <div class="stat-value" id="s-pnl-total" style="color:#10b981;">—</div>
+            <div style="font-size:11px;color:#475569;margin-top:4px;">€</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Gain moyen / WIN</div>
+            <div class="stat-value" id="s-avg-win" style="color:#10b981;font-size:22px;">—</div>
+            <div style="font-size:11px;color:#475569;margin-top:4px;">€</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Perte moyenne / LOSS</div>
+            <div class="stat-value" id="s-avg-loss" style="color:#f43f5e;font-size:22px;">—</div>
+            <div style="font-size:11px;color:#475569;margin-top:4px;">€</div>
+          </div>
+        </div>
+        <div id="pnl-missing-note" style="display:none;margin-top:12px;font-size:11px;color:#64748b;">ℹ️ Certains trades n'ont pas de risque € enregistré (saisis avant cette mise à jour) — ils sont exclus du calcul.</div>
+      </div>
+
+      <!-- COURBE DE CAPITAL CUMULÉ -->
+      <div class="chart-box">
+        <div class="chart-title">📈 Courbe de capital cumulé</div>
+        <svg id="equity-curve" viewBox="0 0 600 200" style="width:100%;height:200px;overflow:visible;"></svg>
+        <div id="equity-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas assez de données avec risque € pour tracer la courbe.</div>
+      </div>
+
+      <!-- ÉVOLUTION WIN RATE DANS LE TEMPS -->
+      <div class="chart-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div class="chart-title" style="margin-bottom:0;">📊 Évolution du win rate</div>
           <div style="display:flex;gap:8px;">
-            <div style="flex:1;text-align:center;padding:10px 6px;border-radius:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:4px;">Cumulé</div>
-              <div style="font-size:20px;font-weight:800;color:#10b981;" id="s-pnl-total">—</div>
-              <div style="font-size:9px;color:#475569;">€</div>
-            </div>
-            <div style="flex:1;text-align:center;padding:10px 6px;border-radius:8px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.1);">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:4px;">/ WIN</div>
-              <div style="font-size:18px;font-weight:800;color:#10b981;" id="s-avg-win">—</div>
-              <div style="font-size:9px;color:#475569;">€</div>
-            </div>
-            <div style="flex:1;text-align:center;padding:10px 6px;border-radius:8px;background:rgba(244,63,94,0.05);border:1px solid rgba(244,63,94,0.1);">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:4px;">/ LOSS</div>
-              <div style="font-size:18px;font-weight:800;color:#f43f5e;" id="s-avg-loss">—</div>
-              <div style="font-size:9px;color:#475569;">€</div>
-            </div>
+            <button class="filter-btn active" id="wr-week" onclick="setWinrateGranularity('week')">Semaine</button>
+            <button class="filter-btn" id="wr-month" onclick="setWinrateGranularity('month')">Mois</button>
           </div>
-          <div id="pnl-missing-note" style="display:none;margin-top:8px;font-size:10px;color:#64748b;">ℹ️ Trades sans risque € exclus du calcul.</div>
         </div>
-
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">📊 Résultats & Série</div>
-          <div class="bar-row" style="margin-bottom:6px;"><div class="bar-header"><span style="font-size:11px;color:#94a3b8;">WIN</span><span style="font-size:11px;font-weight:700;color:#10b981;" id="b-wins">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-wins" style="width:0%;background:#10b981;"></div></div></div>
-          <div class="bar-row" style="margin-bottom:6px;"><div class="bar-header"><span style="font-size:11px;color:#94a3b8;">LOSS</span><span style="font-size:11px;font-weight:700;color:#f43f5e;" id="b-losses">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-losses" style="width:0%;background:#f43f5e;"></div></div></div>
-          <div class="bar-row" style="margin-bottom:10px;"><div class="bar-header"><span style="font-size:11px;color:#94a3b8;">BE</span><span style="font-size:11px;font-weight:700;color:#f59e0b;" id="b-be">0</span></div><div class="bar-track"><div class="bar-fill" id="bf-be" style="width:0%;background:#f59e0b;"></div></div></div>
-          <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">
-            <div style="text-align:center;">
-              <div id="streak-value" style="font-size:28px;font-weight:800;line-height:1;">—</div>
-              <div id="streak-label" style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.06em;">trades</div>
-            </div>
-            <div style="flex:1;font-size:11px;color:#64748b;">
-              <div>🏆 <span style="color:#10b981;font-weight:700;" id="streak-best">—</span> wins max</div>
-              <div style="margin-top:2px;">📉 <span style="color:#f43f5e;font-weight:700;" id="streak-worst">—</span> losses max</div>
-            </div>
-          </div>
-          <div id="streak-warn" style="display:none;margin-top:8px;font-size:10px;color:#f59e0b;padding:6px 8px;border-radius:6px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);"></div>
-        </div>
+        <div id="winrate-bars"></div>
+        <div id="winrate-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore assez de trades pour afficher une tendance.</div>
       </div>
 
-      <!-- ═══ Courbe + Win rate évolution ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:8px;">📈 Courbe de capital</div>
-          <svg id="equity-curve" viewBox="0 0 600 160" style="width:100%;height:160px;overflow:visible;"></svg>
-          <div id="equity-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas assez de données.</div>
-        </div>
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <div class="chart-title" style="margin-bottom:0;">📊 Win rate</div>
-            <div style="display:flex;gap:6px;">
-              <button class="filter-btn active" id="wr-week" onclick="setWinrateGranularity('week')" style="padding:3px 8px;font-size:10px;">Sem.</button>
-              <button class="filter-btn" id="wr-month" onclick="setWinrateGranularity('month')" style="padding:3px 8px;font-size:10px;">Mois</button>
-            </div>
-          </div>
-          <div id="winrate-bars"></div>
-          <div id="winrate-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades.</div>
-        </div>
+      <!-- PERFORMANCE PAR TYPE DE BOUGIE -->
+      <div class="chart-box">
+        <div class="chart-title">🕯️ Performance par type de bougie de confirmation</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Winrate et nombre de trades par pattern M1</div>
+        <div id="candle-pattern-stats"></div>
+        <div id="candle-pattern-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore de trades avec une bougie de confirmation renseignée.</div>
       </div>
 
-      <!-- ═══ Drawdown + Jour semaine ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">📉 Drawdown & Séries</div>
-          <div id="drawdown-stats"></div>
-        </div>
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">📅 Par jour de la semaine</div>
-          <div id="weekday-stats"></div>
-          <div id="weekday-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades.</div>
-        </div>
+      <!-- PERFORMANCE PAR TRANCHE HORAIRE -->
+      <div class="chart-box">
+        <div class="chart-title">🕐 Performance par tranche horaire</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Session Londres 07h-11h · basé sur l'heure d'entrée</div>
+        <div id="hourly-stats"></div>
+        <div id="hourly-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore assez de trades avec une heure renseignée.</div>
       </div>
 
-      <!-- ═══ Qualité setups + Score ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">🔬 Qualité des setups</div>
-          <div style="font-size:10px;color:#475569;margin-bottom:10px;">OB frais/mitigé · Impulsion · Type OB</div>
-          <div id="quality-stats"></div>
-          <div id="quality-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne les données de qualité.</div>
-        </div>
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">⭐ Score qualité /5</div>
-          <div style="font-size:10px;color:#475569;margin-bottom:10px;">Corrélation setup → résultat</div>
-          <div id="setup-score-stats"></div>
-          <div id="setup-score-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne les données de qualité.</div>
-        </div>
+      <!-- QUALITÉ OB & IMPULSION -->
+      <div class="chart-box">
+        <div class="chart-title">🔬 Qualité des setups</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">OB frais vs mitigé · Impulsion forte vs faible</div>
+        <div id="quality-stats"></div>
+        <div id="quality-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Renseigne la qualité de l'OB et de l'impulsion pour voir ces stats.</div>
       </div>
 
-      <!-- ═══ Bougies + Horaire ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">🕯️ Pattern de confirmation</div>
-          <div id="candle-pattern-stats"></div>
-          <div id="candle-pattern-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore de trades avec pattern.</div>
-        </div>
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">🕐 Tranche horaire</div>
-          <div style="font-size:10px;color:#475569;margin-bottom:10px;">Session Londres 07h-11h</div>
-          <div id="hourly-stats"></div>
-          <div id="hourly-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades.</div>
-        </div>
+      <!-- TAILLE DES ORDER BLOCKS -->
+      <div class="chart-box">
+
+      <!-- PERFORMANCE PAR JOUR DE LA SEMAINE -->
+      <div class="chart-box">
+        <div class="chart-title">📅 Performance par jour de la semaine</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Lundi → Vendredi · session Londres</div>
+        <div id="weekday-stats"></div>
+        <div id="weekday-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades.</div>
       </div>
 
-      <!-- ═══ Taille OB ═══ -->
-      <div class="chart-box" style="padding:14px 16px;margin-bottom:12px;">
-        <div class="chart-title" style="margin-bottom:10px;">📏 Taille des Order Blocks</div>
+      <!-- DRAWDOWN MAXIMUM -->
+      <div class="chart-box">
+        <div class="chart-title">📉 Drawdown & Séries</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Perte consécutive maximale</div>
+        <div id="drawdown-stats"></div>
+      </div>
+
+      <!-- SCORE QUALITÉ SETUP -->
+      <div class="chart-box">
+        <div class="chart-title">⭐ Score qualité des setups</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Corrélation qualité du setup / résultat</div>
+        <div id="setup-score-stats"></div>
+        <div id="setup-score-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne les données de qualité pour voir ces stats.</div>
+      </div>
+
+      <!-- TAILLE DES ORDER BLOCKS -->
+      <div class="chart-box">
+        <div class="chart-title">📏 Analyse des tailles d'Order Block</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Performance par tranche de taille d'OB (pips Gold)</div>
         <div id="ob-size-stats"></div>
-        <div id="ob-size-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas encore assez de trades avec taille OB.</div>
-        <div id="ob-size-summary" style="display:none;margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;"></div>
+        <div id="ob-size-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas encore assez de trades avec une taille d'OB renseignée.</div>
+        <div id="ob-size-summary" style="display:none;margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;"></div>
       </div>
 
-      <!-- ═══ Temps de retest ═══ -->
-      <div class="chart-box" style="padding:14px 16px;margin-bottom:12px;">
-        <div class="chart-title" style="margin-bottom:4px;">⏱️ Temps de retest de l'OB</div>
-        <div style="font-size:10px;color:#475569;margin-bottom:12px;">Durée entre la formation de l'OB et l'entrée · nécessite l'heure OB (condition 02)</div>
-        <div id="retest-time-stats"></div>
-        <div id="retest-time-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Renseigne l'heure de formation de l'OB (condition 02) pour voir ces stats.</div>
-      </div>
-
-      <!-- ═══ Heatmap + BT vs Réel ═══ -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">🗓️ Heatmap jour & heure</div>
-          <div id="heatmap-container" style="overflow-x:auto;"></div>
-          <div id="heatmap-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Pas assez de trades.</div>
+      <!-- STREAK TRACKER -->
+      <div class="chart-box">
+        <div class="chart-title">🔥 Série en cours</div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div id="streak-value" style="font-size:36px;font-weight:800;line-height:1;">—</div>
+            <div id="streak-label" style="font-size:11px;color:#475569;margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;">trades</div>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <div style="font-size:11px;color:#64748b;margin-bottom:6px;">Meilleure série / pire série</div>
+            <div style="display:flex;gap:16px;">
+              <div><span style="color:#10b981;font-weight:700;font-size:15px;" id="streak-best">—</span> <span style="font-size:11px;color:#475569;">wins</span></div>
+              <div><span style="color:#f43f5e;font-weight:700;font-size:15px;" id="streak-worst">—</span> <span style="font-size:11px;color:#475569;">losses</span></div>
+            </div>
+          </div>
         </div>
-        <div class="chart-box" style="margin-top:0;padding:14px 16px;">
-          <div class="chart-title" style="margin-bottom:10px;">⚖️ Backtest vs Réel</div>
-          <div id="bt-vs-real"></div>
-          <div id="bt-vs-real-empty" style="display:none;text-align:center;padding:20px 0;color:#334155;font-size:12px;">Besoin de trades BT et Réel.</div>
-        </div>
+        <div id="streak-warning" style="display:none;margin-top:14px;padding:10px 14px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);font-size:12px;color:#f59e0b;font-weight:600;"></div>
       </div>
 
-      <!-- ═══ Calendrier ═══ -->
-      <div class="chart-box" style="padding:14px 16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div class="chart-title" style="margin-bottom:0;">📅 Calendrier des trades</div>
+      <!-- HEATMAP HEURE x JOUR -->
+      <div class="chart-box">
+        <div class="chart-title">🗓️ Performance par jour & heure</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:12px;">Win rate par heure d'entrée et jour de la semaine</div>
+        <div id="heatmap-container" style="overflow-x:auto;"></div>
+        <div id="heatmap-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Pas assez de trades pour générer la heatmap.</div>
+      </div>
+
+      <!-- BACKTEST VS RÉEL -->
+      <div class="chart-box">
+        <div class="chart-title">⚖️ Backtest vs Réel</div>
+        <div style="font-size:11px;color:#475569;margin-bottom:14px;">Tes résultats réels suivent-ils ton backtest ?</div>
+        <div id="bt-vs-real"></div>
+        <div id="bt-vs-real-empty" style="display:none;text-align:center;padding:30px 0;color:#334155;font-size:12px;">Besoin de trades en Backtest ET en Réel pour comparer.</div>
+      </div>
+
+      <!-- CALENDRIER -->
+      <div class="chart-box" style="margin-top:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="chart-title" style="margin-bottom:0;">Calendrier des trades</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <button onclick="calPrev()" style="width:26px;height:26px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;">‹</button>
-            <span id="cal-month-label" style="font-size:13px;font-weight:700;color:#e2e8f0;min-width:110px;text-align:center;"></span>
-            <button onclick="calNext()" style="width:26px;height:26px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;">›</button>
+            <button onclick="calPrev()" style="width:28px;height:28px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;">‹</button>
+            <span id="cal-month-label" style="font-size:13px;font-weight:700;color:#e2e8f0;min-width:120px;text-align:center;"></span>
+            <button onclick="calNext()" style="width:28px;height:28px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;">›</button>
           </div>
         </div>
         <div class="cal-weekdays">
           <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
-        <div id="cal-detail" style="display:none;margin-top:12px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <!-- Day detail panel -->
+        <div id="cal-detail" style="display:none;margin-top:14px;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="font-size:13px;font-weight:700;color:#e2e8f0;" id="cal-detail-title"></div>
             <button onclick="document.getElementById('cal-detail').style.display='none'" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:16px;">×</button>
           </div>
@@ -1733,8 +1718,15 @@
       </div>
     </div>
 
+    
+    <div class="journal-filters">
+      <button class="filter-btn active" id="jf-all" onclick="setJournalFilter('all')">Tous</button>
+      <button class="filter-btn" id="jf-backtest" onclick="setJournalFilter('backtest')">🔬 Backtest</button>
+      <button class="filter-btn" id="jf-real" onclick="setJournalFilter('real')">🔴 Réel</button>
+      <button class="filter-btn" id="jf-aplus" onclick="setJournalFilter('aplus')">⭐ A++</button>
+    </div>
     <div class="trade-list" id="trade-list"></div>
-    <div class="empty" id="journal-empty"><div class="empty-icon">📓</div>Ton journal est vide — commence à trader !</div>
+
 
     <!-- ═══ JOURS SANS TRADE ═══ -->
     <div id="notrade-section" style="display:none;margin-top:28px;">
@@ -1747,7 +1739,10 @@
       </div>
       <div id="notrade-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
     </div>
+    <div class="empty" id="journal-empty"><div class="empty-icon">📓</div>Ton journal est vide — commence à trader !</div>
   </div>
+
+</div>
 
 <script>
 // ═══════════════════════════════════
@@ -5490,6 +5485,7 @@ function updateTabBadge() {
   });
 }
 </script>
+
 <!-- ═══ CALCULATEUR DE LOT FLOTTANT ═══ -->
 <button id="float-calc-btn" onclick="toggleFloatCalc()" title="Calculateur de lot rapide"
   style="position:fixed;bottom:24px;right:24px;z-index:999;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(16,185,129,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.15s;">
@@ -5561,4 +5557,55 @@ function updateTabBadge() {
 .fc-risk-btn:hover, .fc-sl-btn:hover { border-color:rgba(16,185,129,0.4);color:#10b981; }
 .fc-risk-btn.active, .fc-sl-btn.active { background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.5);color:#10b981; }
 #float-calc-btn:hover { transform:scale(1.1); }
-</style>
+</style
+
+<!-- ═══ MODAL PAS DE TRADE ═══ -->
+<div id="notrade-overlay" class="overlay">
+  <div class="modal" style="max-width:480px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
+      <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Date</div>
+    <input type="date" id="notrade-date" class="input" style="font-size:12px;height:36px;margin-bottom:12px;" />
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison(s) — sélection multiple possible</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⭐ Score insuffisant — setup &lt; 3 étoiles</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_bos" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">📊 Pas de BOS confirmé — sweep sans cassure de structure</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="biais_incertain" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">↕️ Biais M5 incertain — marché en range</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="contre_biais" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⚠️ Setup contre le biais M5</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="ob_mitigue" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">♻️ OB mitigé uniquement — pas d'OB frais</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="limite_losses" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🛑 Limite de 2 losses atteinte</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_setup" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🔍 Aucun setup valide ce matin</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="psychologie" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🧠 Condition mentale — pas dans le bon état d'esprit</button>
+      <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="pas_de_retest" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">🎯 Pas de retest de l'OB — setup valide mais prix n'est pas revenu</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Screenshot (optionnel)</div>
+    <input type="url" id="notrade-screenshot" class="input" placeholder="https://www.tradingview.com/x/..." style="font-size:12px;height:36px;margin-bottom:8px;" />
+    <div id="notrade-screenshot-preview" style="display:none;margin-bottom:8px;">
+      <a id="notrade-screenshot-link" href="#" target="_blank" style="font-size:11px;color:#06b6d4;">📸 Voir le screenshot ↗</a>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Note (optionnel)</div>
+    <textarea id="notrade-note" class="input" placeholder="Décris ce que tu as vu, pourquoi tu as décidé de ne pas entrer…" style="height:80px;font-size:12px;resize:vertical;"></textarea>
+    <div id="notrade-score-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:11px;color:#f59e0b;">
+      💡 Rappel : les trades à ≥ 4⭐ ont une espérance de +1.67R contre +0.94R tous trades confondus.
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button onclick="closeNoTradeModal()" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:12px;cursor:pointer;">Annuler</button>
+      <button onclick="saveNoTradeDay()" style="flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden IDs required by JS -->
+<div style="display:none"><span id="sf-count" style="font-size:11px;color:#475569;"></span></div>
+<div style="display:none"><div id="sf-custom-dates" style="display:none;gap:4px;align-items:center;"></div></div>
+<div style="display:none"><input type="date" id="sf-date-from" style="display:none;" /></div>
+<div style="display:none"><input type="date" id="sf-date-to" style="display:none;" /></div>
+<div style="display:none"><div id="retest-time-stats" style="display:none;"></div></div>
+<div style="display:none"><div id="retest-time-empty" style="display:none;"></div></div>
+<div style="display:none"><div id="jf-custom-dates" style="display:none;"></div></div>
+<div style="display:none"><input type="date" id="jf-date-from" style="display:none;" /></div>
+<div style="display:none"><input type="date" id="jf-date-to" style="display:none;" /></div>
+</body>
+</html>
