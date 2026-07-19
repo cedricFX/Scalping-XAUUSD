@@ -5051,6 +5051,8 @@ async function fetchNoTradeDaysFromSheet() {
   } catch(e) { console.warn('fetchNoTradeDaysFromSheet:', e); }
 }
 
+function renderNoTradeDays_wrap() { try { renderNoTradeDays(); } catch(e) { console.error('renderNoTradeDays:', e); } }
+
 function renderBtVsReal() {
   const container = document.getElementById('bt-vs-real');
   const empty = document.getElementById('bt-vs-real-empty');
