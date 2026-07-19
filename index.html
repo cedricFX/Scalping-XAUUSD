@@ -1901,6 +1901,7 @@ window.addEventListener('DOMContentLoaded', () => {
   updateTabBadge();
   fetchTradesFromSheet(); // sync depuis Google Sheet au chargement
   checkDailyLossLimit();
+  fetchNoTradeDaysFromSheet(); // sync jours sans trade
   if (new Date().getDay() === 1) showWeeklyBilan(); // Lundi = affiche le bilan de la semaine passée
 });
 
@@ -3098,6 +3099,7 @@ function saveNoTradeDay() {
   noTradeDays = noTradeDays.filter(d => d.date !== today);
   noTradeDays.push({ date: today, reason: selectedNoTradeReason, note, screenshot: screenshot || null, mode: currentMode });
   localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
+  pushNoTradeDaysToSheet();
   closeNoTradeModal();
 }
 
@@ -5023,7 +5025,31 @@ function renderNoTradeDays() {
   }).join('');
 }
 
-function renderNoTradeDays_wrap() { try { renderNoTradeDays(); } catch(e) { console.error('renderNoTradeDays:', e); } }
+async function pushNoTradeDaysToSheet() {
+  if (!SHEET_URL || noTradeDays.length === 0) return;
+  try {
+    await fetch(SHEET_URL + '?action=syncNoTrade', {
+      method: 'POST',
+      body: JSON.stringify({ days: noTradeDays })
+    });
+  } catch(e) { console.warn('pushNoTradeDaysToSheet:', e); }
+}
+
+async function fetchNoTradeDaysFromSheet() {
+  if (!SHEET_URL) return;
+  try {
+    const r = await fetch(SHEET_URL + '?action=getNoTrade');
+    const data = await r.json();
+    if (data.days && data.days.length > 0) {
+      // Merge : priorité aux données Sheet, on garde les locales si date absente du Sheet
+      const sheetDates = new Set(data.days.map(d => d.date));
+      const localOnly = noTradeDays.filter(d => !sheetDates.has(d.date));
+      noTradeDays = [...data.days, ...localOnly].sort((a,b) => b.date.localeCompare(a.date));
+      localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
+      renderNoTradeDays_wrap();
+    }
+  } catch(e) { console.warn('fetchNoTradeDaysFromSheet:', e); }
+}
 
 function renderBtVsReal() {
   const container = document.getElementById('bt-vs-real');
