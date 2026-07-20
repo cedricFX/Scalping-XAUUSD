@@ -3416,9 +3416,19 @@ function renderCalendar() {
     }
   });
 
+  // Build no-trade days map for this month
+  const noTradeMap = {};
+  noTradeDays.forEach(d => {
+    if (!d.date) return;
+    const parts = String(d.date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!parts) return;
+    const y = parseInt(parts[1]), m = parseInt(parts[2]), day = parseInt(parts[3]);
+    if (y === calYear && m-1 === calMonth) noTradeMap[day] = d;
+  });
+
   // First weekday of month (Mon=0)
   const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const offset = (firstDay + 6) % 7; // convert Sun=0 to Mon=0
+  const offset = (firstDay + 6) % 7;
   const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
   const today = new Date();
   const isCurrentMonth = today.getFullYear()===calYear && today.getMonth()===calMonth;
@@ -3427,9 +3437,9 @@ function renderCalendar() {
   for (let i=0; i<offset; i++) html += '<div class="cal-day empty"></div>';
   for (let d=1; d<=daysInMonth; d++) {
     const ts = dayMap[d] || [];
+    const nt = noTradeMap[d];
     const wins  = ts.filter(t=>t.result==='WIN').length;
     const losses= ts.filter(t=>t.result==='LOSS').length;
-    const bes   = ts.filter(t=>t.result==='BE').length;
     let cls = 'cal-day';
     let dot = '';
     if (ts.length > 0) {
@@ -3442,26 +3452,28 @@ function renderCalendar() {
     if (selectedCalDay === d) cls += ' selected';
     const title = ts.length > 0 ? `${ts.length} trade${ts.length>1?'s':''}` : '';
 
-    // Somme € du jour (uniquement sur les trades avec un risque € connu)
     const pnlValues = ts.map(t => tradePnl(t)).filter(v => v !== null);
     let pnlHtml = '';
     if (pnlValues.length > 0) {
       const pnlSum = pnlValues.reduce((a,b)=>a+b, 0);
       const pnlColor = pnlSum > 0 ? '#10b981' : pnlSum < 0 ? '#f43f5e' : '#94a3b8';
-      const pnlLabel = (pnlSum >= 0 ? '+' : '') + pnlSum.toFixed(0) + '€';
-      pnlHtml = `<span class="cal-pnl" style="color:${pnlColor};">${pnlLabel}</span>`;
+      pnlHtml = `<span class="cal-pnl" style="color:${pnlColor};">${(pnlSum>=0?'+':'')+pnlSum.toFixed(0)}€</span>`;
     }
 
-    html += `<div class="${cls}" onclick="selectCalDay(${d})" title="${title}">
+    // No-trade indicator
+    const ntDot = nt ? `<span style="font-size:8px;color:#a78bfa;position:absolute;top:3px;right:4px;" title="Pas de trade · ${Array.isArray(nt.reason)?nt.reason.join(', '):nt.reason}">📋</span>` : '';
+
+    html += `<div class="${cls}" onclick="selectCalDay(${d})" title="${title}" style="position:relative;">
       <span class="cal-num">${d}</span>
       ${dot ? `<span class="cal-dot">${dot}</span>` : ''}
       ${pnlHtml}
+      ${ntDot}
     </div>`;
   }
   grid.innerHTML = html;
 
-  // Refresh detail panel if a day is selected
   if (selectedCalDay) showCalDetail(selectedCalDay, dayMap[selectedCalDay]||[]);
+
 }
 
 function selectCalDay(d) {
@@ -3494,31 +3506,80 @@ function showCalDetail(d, dayTrades) {
   const title = document.getElementById('cal-detail-title');
   const list  = document.getElementById('cal-detail-trades');
   panel.style.display = '';
-  title.textContent = `${d} ${MONTHS_FR[calMonth]} ${calYear} — ${dayTrades.length} trade${dayTrades.length>1?'s':''}`;
-  if (dayTrades.length === 0) {
-    list.innerHTML = '<div style="font-size:12px;color:#475569;">Aucun trade ce jour.</div>';
-    return;
-  }
-  list.innerHTML = dayTrades.map(t => {
-    const rc = t.result==='WIN'?'#10b981':t.result==='LOSS'?'#f43f5e':'#f59e0b';
-    const dc = t.direction==='LONG'?'#10b981':'#f43f5e';
-    const dur = t.duration ? ` · ⏱ ${Math.floor(t.duration/60)>0?Math.floor(t.duration/60)+'h'+String(t.duration%60).padStart(2,'0'):t.duration%60+'min'}` : '';
-    const sc = [
-      t.screenshot ? `<a href="${t.screenshot}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸1 ↗</a>` : '',
-      t.screenshot2 ? `<a href="${t.screenshot2}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸2 ↗</a>` : '',
-      t.screenshot3 ? `<a href="${t.screenshot3}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸3 ↗</a>` : '',
-    ].filter(Boolean).join(' ');
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-      <span style="padding:3px 8px;border-radius:5px;background:${rc}22;color:${rc};font-weight:800;font-size:11px;">${t.result}</span>
-      <span style="font-size:12px;color:${dc};font-weight:700;">${t.direction}</span>
-      ${t.rr?`<span style="font-size:12px;color:#06b6d4;">${t.rr}R</span>`:''}
-      ${t.slPips?`<span style="font-size:11px;color:#64748b;">SL ${t.slPips}p</span>`:''}
-      <span style="font-size:11px;color:#475569;">${t.time||''}${t.timeEnd?' → '+t.timeEnd:''}${dur}</span>
-      <span style="margin-left:auto;display:flex;align-items:center;gap:8px;">${sc}
-        <button onclick="openTradeFromCalendar(${t.id})" style="padding:3px 9px;border-radius:6px;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.08);color:#06b6d4;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;">Ouvrir →</button>
-      </span>
+
+  // Build date string for this day
+  const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const noTradeEntry = noTradeDays.find(nt => nt.date === dateStr);
+
+  title.textContent = `${d} ${MONTHS_FR[calMonth]} ${calYear} — ${dayTrades.length} trade${dayTrades.length>1?'s':''}${noTradeEntry?' · 📋 Pas de trade':''}`;
+
+  const reasonLabels = {
+    score_insuffisant:'⭐ Score insuffisant', pas_de_bos:'📊 Pas de BOS', biais_incertain:'↕️ Biais incertain',
+    contre_biais:'⚠️ Contre biais M5', ob_mitigue:'♻️ OB mitigé', limite_losses:'🛑 Limite losses',
+    pas_de_setup:'🔍 Aucun setup', psychologie:'🧠 Mental', pas_de_retest:'🎯 Pas de retest'
+  };
+
+  let ntHtml = '';
+  if (noTradeEntry) {
+    const reasons = Array.isArray(noTradeEntry.reason) ? noTradeEntry.reason : [noTradeEntry.reason];
+    const tags = reasons.map(r => `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);color:#a5b4fc;">${reasonLabels[r]||r}</span>`).join(' ');
+    const noteHtml = noTradeEntry.note ? `<div style="font-size:11px;color:#64748b;font-style:italic;margin-top:4px;">${noTradeEntry.note}</div>` : '';
+    const ssHtml = noTradeEntry.screenshot ? `<a href="${noTradeEntry.screenshot}" target="_blank" style="font-size:10px;color:#06b6d4;">📸 Screenshot ↗</a>` : '';
+    ntHtml = `<div style="padding:10px 12px;border-radius:8px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:700;color:#a78bfa;">📋 Pas de trade</span>
+        <button onclick="openEditNoTrade('${dateStr}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);color:#a78bfa;font-size:10px;cursor:pointer;">✏️ Modifier</button>
+      </div>
+      <div style="flex-wrap:wrap;display:flex;gap:4px;">${tags}</div>
+      ${noteHtml}${ssHtml}
     </div>`;
-  }).join('');
+  }
+
+  const tradesHtml = dayTrades.length === 0 && !noTradeEntry
+    ? '<div style="font-size:12px;color:#475569;">Aucun trade ce jour.</div>'
+    : dayTrades.map(t => {
+      const rc = t.result==='WIN'?'#10b981':t.result==='LOSS'?'#f43f5e':'#f59e0b';
+      const dc = t.direction==='LONG'?'#10b981':'#f43f5e';
+      const dur = t.duration ? ` · ⏱ ${Math.floor(t.duration/60)>0?Math.floor(t.duration/60)+'h'+String(t.duration%60).padStart(2,'0'):t.duration%60+'min'}` : '';
+      const sc = [
+        t.screenshot ? `<a href="${t.screenshot}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸1 ↗</a>` : '',
+        t.screenshot2 ? `<a href="${t.screenshot2}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸2 ↗</a>` : '',
+        t.screenshot3 ? `<a href="${t.screenshot3}" target="_blank" style="color:#06b6d4;font-size:11px;text-decoration:none;">📸3 ↗</a>` : '',
+      ].filter(Boolean).join(' ');
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span style="padding:3px 8px;border-radius:5px;background:${rc}22;color:${rc};font-weight:800;font-size:11px;">${t.result}</span>
+        <span style="font-size:12px;color:${dc};font-weight:700;">${t.direction}</span>
+        ${t.rr?`<span style="font-size:12px;color:#06b6d4;">${t.rr}R</span>`:''}
+        ${t.slPips?`<span style="font-size:11px;color:#64748b;">SL ${t.slPips}p</span>`:''}
+        <span style="font-size:11px;color:#475569;">${t.time||''}${t.timeEnd?' → '+t.timeEnd:''}${dur}</span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:8px;">${sc}
+          <button onclick="openTradeFromCalendar(${t.id})" style="padding:3px 9px;border-radius:6px;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.08);color:#06b6d4;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;">Ouvrir →</button>
+        </span>
+      </div>`;
+    }).join('');
+
+  list.innerHTML = ntHtml + tradesHtml;
+}
+
+function openEditNoTrade(dateStr) {
+  const entry = noTradeDays.find(d => d.date === dateStr);
+  if (!entry) return;
+  // Pre-fill modal with existing data
+  selectedNoTradeReason = Array.isArray(entry.reason) ? [...entry.reason] : [entry.reason];
+  const overlayEl = document.getElementById('notrade-overlay');
+  const dateEl = document.getElementById('notrade-date');
+  const noteEl = document.getElementById('notrade-note');
+  const ssEl = document.getElementById('notrade-screenshot');
+  const infoEl = document.getElementById('notrade-score-info');
+  if (dateEl) dateEl.value = dateStr;
+  if (noteEl) noteEl.value = entry.note || '';
+  if (ssEl) ssEl.value = entry.screenshot || '';
+  if (infoEl) infoEl.style.display = 'none';
+  // Highlight selected reasons
+  document.querySelectorAll('.notrade-reason-btn').forEach(b => {
+    b.classList.toggle('selected', selectedNoTradeReason.includes(b.getAttribute('data-r')));
+  });
+  if (overlayEl) { overlayEl.classList.add('visible'); overlayEl.style.display = 'flex'; }
 }
 function setStatsFilter(f) {
   statsFilter = f;
@@ -5026,7 +5087,10 @@ function renderNoTradeDays() {
     return `<div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.15);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
         <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${d.date}</span>
-        ${modeTag}
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${modeTag}
+          <button onclick="openEditNoTrade('${d.date}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);color:#a78bfa;font-size:10px;cursor:pointer;">✏️</button>
+        </div>
       </div>
       <div style="flex-wrap:wrap;">${tags}</div>
       ${noteHtml}
