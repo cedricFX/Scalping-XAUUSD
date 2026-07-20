@@ -3070,6 +3070,8 @@ function openNoTradeModal() {
   if (screenshotEl) screenshotEl.value = '';
   if (previewEl) previewEl.style.display = 'none';
   if (dateEl) dateEl.value = new Date().toISOString().slice(0,10);
+  const timeEl = document.getElementById('notrade-time');
+  if (timeEl) timeEl.value = new Date().toTimeString().slice(0,5);
   if (infoEl) infoEl.style.display = 'none';
   if (overlayEl) {
     overlayEl.classList.add('visible');
@@ -3109,15 +3111,26 @@ function saveNoTradeDay() {
     alert('Choisis au moins une raison.'); return;
   }
   const dateEl = document.getElementById('notrade-date');
+  const timeEl = document.getElementById('notrade-time');
   const selectedDate = dateEl && dateEl.value ? dateEl.value : new Date().toISOString().slice(0,10);
+  const selectedTime = timeEl && timeEl.value ? timeEl.value : '';
   const note = document.getElementById('notrade-note').value;
   const screenshot = document.getElementById('notrade-screenshot').value.trim();
   noTradeDays = noTradeDays.filter(d => d.date !== selectedDate);
-  noTradeDays.push({ date: selectedDate, reason: selectedNoTradeReason, note, screenshot: screenshot || null, mode: currentMode });
+  noTradeDays.push({ date: selectedDate, time: selectedTime, reason: selectedNoTradeReason, note, screenshot: screenshot || null, mode: currentMode });
   localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
   pushNoTradeDaysToSheet();
   renderNoTradeDays_wrap();
   closeNoTradeModal();
+}
+
+function deleteNoTradeDay(dateStr) {
+  if (!confirm(`Supprimer le jour sans trade du ${dateStr} ?`)) return;
+  noTradeDays = noTradeDays.filter(d => d.date !== dateStr);
+  localStorage.setItem('gold-no-trade-days', JSON.stringify(noTradeDays));
+  pushNoTradeDaysToSheet();
+  renderNoTradeDays_wrap();
+  renderCalendar();
 }
 
 // ═══════════════════════════════════
@@ -3537,8 +3550,11 @@ function showCalDetail(d, dayTrades) {
     const ssHtml = noTradeEntry.screenshot ? `<a href="${noTradeEntry.screenshot}" target="_blank" style="font-size:10px;color:#06b6d4;">📸 Screenshot ↗</a>` : '';
     ntHtml = `<div style="padding:10px 12px;border-radius:8px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);margin-bottom:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:12px;font-weight:700;color:#a78bfa;">📋 Pas de trade</span>
-        <button onclick="openEditNoTrade('${dateStr}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);color:#a78bfa;font-size:10px;cursor:pointer;">✏️ Modifier</button>
+        <span style="font-size:12px;font-weight:700;color:#a78bfa;">📋 Pas de trade${noTradeEntry.time ? ' · <span style="color:#64748b;font-weight:400;">'+noTradeEntry.time+'</span>' : ''}</span>
+        <div style="display:flex;gap:6px;">
+          <button onclick="openEditNoTrade('${dateStr}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);color:#a78bfa;font-size:10px;cursor:pointer;">✏️ Modifier</button>
+          <button onclick="deleteNoTradeDay('${dateStr}');document.getElementById('cal-detail').style.display='none';" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.06);color:#f43f5e;font-size:10px;cursor:pointer;">🗑️</button>
+        </div>
       </div>
       <div style="flex-wrap:wrap;display:flex;gap:4px;">${tags}</div>
       ${noteHtml}${ssHtml}
@@ -3582,6 +3598,8 @@ function openEditNoTrade(dateStr) {
   const ssEl = document.getElementById('notrade-screenshot');
   const infoEl = document.getElementById('notrade-score-info');
   if (dateEl) dateEl.value = dateStr;
+  const timeEl = document.getElementById('notrade-time');
+  if (timeEl) timeEl.value = entry.time || '';
   if (noteEl) noteEl.value = entry.note || '';
   if (ssEl) ssEl.value = entry.screenshot || '';
   if (infoEl) infoEl.style.display = 'none';
@@ -5112,10 +5130,11 @@ function renderNoTradeDays() {
       : '';
     return `<div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.15);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${d.date}</span>
-        <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${d.date}${d.time ? ' · <span style="color:#64748b;font-weight:400;">'+d.time+'</span>' : ''}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
           ${modeTag}
           <button onclick="openEditNoTrade('${d.date}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);color:#a78bfa;font-size:10px;cursor:pointer;">✏️</button>
+          <button onclick="deleteNoTradeDay('${d.date}')" style="padding:2px 8px;border-radius:5px;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.06);color:#f43f5e;font-size:10px;cursor:pointer;">🗑️</button>
         </div>
       </div>
       <div style="flex-wrap:wrap;">${tags}</div>
@@ -5647,8 +5666,16 @@ function updateTabBadge() {
       <div style="font-size:15px;font-weight:700;color:#e2e8f0;">📋 Pas de trade aujourd'hui</div>
       <button onclick="closeNoTradeModal()" style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:20px;">×</button>
     </div>
-    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Date</div>
-    <input type="date" id="notrade-date" class="input" style="font-size:12px;height:36px;margin-bottom:12px;" />
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Date</div>
+        <input type="date" id="notrade-date" class="input" style="font-size:12px;height:36px;" />
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Heure du setup</div>
+        <input type="time" id="notrade-time" class="input" style="font-size:12px;height:36px;" />
+      </div>
+    </div>
     <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Raison(s) — sélection multiple possible</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
       <button class="notrade-reason-btn" onclick="selectNoTradeReason(this.getAttribute('data-r'))" data-r="score_insuffisant" style="text-align:left;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:#94a3b8;font-size:12px;cursor:pointer;">⭐ Score insuffisant — setup &lt; 3 étoiles</button>
