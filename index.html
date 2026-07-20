@@ -446,6 +446,13 @@
             <button class="toggle-btn" id="bias-bear" onclick="setBias('bearish');event.stopPropagation()">📉 Bearish</button>
           </div>
 
+          <div class="field-label" style="margin-top:12px;">Type de liquidité <span style="color:#475569;font-weight:400;text-transform:none;">(nature du niveau)</span></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="toggle-btn" id="liq-external" onclick="setLiqType('external');event.stopPropagation()" title="Haut ou bas de structure M5 — liquidité externe au-dessus/en-dessous des swings">🏔️ Haut / Bas structure</button>
+            <button class="toggle-btn" id="liq-internal" onclick="setLiqType('internal');event.stopPropagation()" title="Liquidité à l'intérieur d'un FVG — imbalance non comblée">📊 Interne (FVG)</button>
+          </div>
+          <div id="liq-type-hint" style="font-size:10px;color:#475569;margin-top:6px;line-height:1.5;"></div>
+
           <div class="field-label" style="margin-top:12px;">Type de trade <span style="color:#475569;font-weight:400;text-transform:none;">(nature du mouvement)</span></div>
           <div style="display:flex;gap:8px;margin-top:6px;" id="trade-type-btns">
             <button class="toggle-btn" id="type-reversal" onclick="setTradeType('reversal');event.stopPropagation()" title="Le prix retourne contre la tendance précédente — OB de rejet sur un niveau clé">🔄 Retournement</button>
@@ -1758,6 +1765,8 @@ async function fetchTradesFromSheet() {
         obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
         obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
         bos: (t.bos && t.bos !== 'null' && t.bos !== '') ? t.bos : null,
+        liqType: (t.liqType && t.liqType !== 'null' && t.liqType !== '') ? t.liqType : null,
+  liqType: (t.liqType && t.liqType !== 'null' && t.liqType !== '') ? t.liqType : null,
         candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
         checklist: typeof t.checklist === 'string'
           ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
@@ -1843,6 +1852,7 @@ let trades = JSON.parse(localStorage.getItem('gold-trades') || '[]').map(t => ({
   obStatus: (t.obStatus && t.obStatus !== 'null' && t.obStatus !== '') ? t.obStatus : null,
   obType: (t.obType && t.obType !== 'null' && t.obType !== '') ? t.obType : null,
   bos: (t.bos && t.bos !== 'null' && t.bos !== '') ? t.bos : null,
+  liqType: (t.liqType && t.liqType !== 'null' && t.liqType !== '') ? t.liqType : null,
   candlePattern: (t.candlePattern && t.candlePattern !== 'null' && t.candlePattern !== '') ? t.candlePattern : null,
   checklist: typeof t.checklist === 'string'
     ? (() => { try { return JSON.parse(t.checklist); } catch(e) { return {}; } })()
@@ -1895,6 +1905,21 @@ function setBias(bias) {
 }
 
 let currentTradeType = null; // 'reversal' | 'continuation'
+let currentLiqType = null;   // 'external' | 'internal'
+
+function setLiqType(v) {
+  currentLiqType = v;
+  document.getElementById('liq-external').className = 'toggle-btn' + (v === 'external' ? ' active-long' : '');
+  document.getElementById('liq-internal').className = 'toggle-btn' + (v === 'internal' ? ' active-long' : '');
+  const hint = document.getElementById('liq-type-hint');
+  if (v === 'external') {
+    hint.textContent = '🏔️ Haut/Bas de structure — liquidité externe, stops au-dessus/en-dessous des swings M5.';
+    hint.style.color = '#06b6d4';
+  } else {
+    hint.textContent = '📊 Interne (FVG) — imbalance non comblée, le prix revient chercher la liquidité à l\'intérieur du déséquilibre.';
+    hint.style.color = '#a78bfa';
+  }
+}
 
 let currentImpulseQuality = null; // 'strong' | 'weak'
 let currentBos = null; // 'M1' | 'M5' | 'M1+M5'
@@ -2474,6 +2499,13 @@ function resetAll(force) {
   onSlReminderToggle();
   resetCandlePattern();
   currentTradeType = null;
+  currentLiqType = null;
+  const liqExt = document.getElementById('liq-external');
+  const liqInt = document.getElementById('liq-internal');
+  if (liqExt) liqExt.className = 'toggle-btn';
+  if (liqInt) liqInt.className = 'toggle-btn';
+  const liqHint = document.getElementById('liq-type-hint');
+  if (liqHint) liqHint.textContent = '';
   const trBtn = document.getElementById('type-reversal');
   const tcBtn = document.getElementById('type-continuation');
   if (trBtn) trBtn.className = 'toggle-btn';
@@ -3325,6 +3357,7 @@ function submitTrade() {
     candlePattern: selectedCandlePattern,
     obTime: (document.getElementById('second-time') ? document.getElementById('second-time').value : null) || null,
     tradeType: currentTradeType,
+    liqType: currentLiqType,
     impulseQuality: currentImpulseQuality,
     bos: currentBos,
     obStatus: currentObStatus,
@@ -4177,6 +4210,22 @@ function renderQualityStats(data) {
       const diff = strong.wr - weak.wr;
       html += `<div style="font-size:11px;color:#475569;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
         ${diff > 5 ? `✓ L'impulsion forte surperforme de <strong style="color:#10b981;">+${diff.toFixed(0)}pts</strong>` : `📊 Écart de ${Math.abs(diff).toFixed(0)}pts — continue à collecter`}
+      </div>`;
+    }
+  }
+
+  // ── TYPE DE LIQUIDITÉ
+  const withLiq = data.filter(t => t.liqType);
+  if (withLiq.length > 0) {
+    html += `<div style="font-size:11px;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 10px;">🌊 Type de Liquidité</div>`;
+    const ext = calcGroup(data, 'liqType', 'external');
+    const intl = calcGroup(data, 'liqType', 'internal');
+    html += renderRow('Haut/Bas structure', '🏔️', ext, '#06b6d4');
+    html += renderRow('Interne (FVG)', '📊', intl, '#a78bfa');
+    if (ext.total > 0 && intl.total > 0) {
+      const best = ext.wr >= intl.wr ? `Haut/Bas structure (+${(ext.wr - intl.wr).toFixed(0)}pts)` : `Interne FVG (+${(intl.wr - ext.wr).toFixed(0)}pts)`;
+      html += `<div style="font-size:11px;color:#475569;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+        ✓ Meilleur winrate : <strong style="color:#10b981;">${best}</strong>
       </div>`;
     }
   }
